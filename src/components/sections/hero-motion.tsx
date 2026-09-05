@@ -27,13 +27,14 @@ export function useIdlePhase(active: boolean, duration: number, delay: number) {
 }
 
 // Reference-inspired resting angles; idle and pointer transforms are additive.
+// Depth refined to ~24-28px above dashboard surface for premium Apple-level restraint.
 const bases = [
-  "translateZ(40px) rotateX(12deg) rotateY(10deg) rotateZ(-12deg)",
-  "translateZ(45px) rotateX(15deg) rotateY(12deg) rotateZ(-15deg)",
-  "translateZ(35px) rotateX(12deg) rotateY(-10deg) rotateZ(14deg)",
-  "translateZ(40px) rotateX(15deg) rotateY(-12deg) rotateZ(15deg)",
+  "translateZ(26px) rotateX(10deg) rotateY(8deg) rotateZ(-10deg)",
+  "translateZ(28px) rotateX(12deg) rotateY(10deg) rotateZ(-12deg)",
+  "translateZ(24px) rotateX(10deg) rotateY(-8deg) rotateZ(12deg)",
+  "translateZ(26px) rotateX(12deg) rotateY(-10deg) rotateZ(12deg)",
 ];
-const depths = [1.2, 0.8, 1.5, 1];
+const depths = [1.1, 0.75, 1.3, 0.9];
 // Independent paths and periods keep the axes from reversing in lockstep.
 // Closed paths ease to zero velocity at the seam, without a repeat pause.
 const driftPaths = [

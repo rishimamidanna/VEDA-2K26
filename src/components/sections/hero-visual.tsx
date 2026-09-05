@@ -34,17 +34,17 @@ export function HeroVisual() {
       }}
       onPointerLeave={reset}
       onPointerCancel={reset}
-      className="relative mx-auto w-full max-w-[560px] [perspective:1400px]">
+      className="relative mx-auto w-full max-w-[560px] px-2 sm:px-3 lg:px-0 [perspective:1400px]">
       {/* Perspective belongs to the stationary parent; rotate its 3D scene.
           Pointer coordinates also use that parent to avoid a moving hit area. */}
       <motion.div
         style={{ rotateX: desktop && !reduced ? rotateX : 0, rotateY: desktop && !reduced ? rotateY : 0 }}
         className="relative w-full [transform-style:preserve-3d]">
-        <div className="relative flex w-full items-center justify-center py-4 sm:py-8 lg:py-4 [perspective:1400px]">
+        <div className="relative flex w-full items-center justify-center py-2 sm:py-4 lg:py-2 [perspective:1400px]">
           {/* Extremely subtle ambient background gradient */}
           <div 
             className="pointer-events-none absolute top-1/2 left-1/2 h-[150%] w-[150%] -translate-x-1/2 -translate-y-1/2 rounded-full"
-            style={{ background: 'radial-gradient(circle, rgba(100, 120, 255, 0.05), rgba(150, 100, 255, 0.02) 40%, transparent 70%)' }}
+            style={{ background: 'radial-gradient(circle, rgba(124, 140, 255, 0.035), rgba(167, 139, 250, 0.015) 45%, transparent 70%)' }}
             aria-hidden="true"
           />
 
@@ -70,7 +70,7 @@ export function HeroVisual() {
 
           {/* Premium Software Product Window (Front) */}
           <div 
-            className="relative z-10 w-[95%] max-w-[560px] rounded-[22px] bg-white p-2 shadow-[0_30px_80px_rgba(20,20,40,0.10),0_10px_30px_rgba(20,20,40,0.05)] border border-[#14141e]/[0.06]"
+            className="relative z-10 w-[95%] max-w-[560px] rounded-[22px] bg-white p-2 shadow-[0_30px_70px_rgba(20,20,35,0.08),0_10px_25px_rgba(20,20,35,0.04),0_2px_6px_rgba(20,20,35,0.02)] border border-[#141423]/[0.08]"
             style={{ 
               transform: desktop && !reduced ? 'rotateY(-3deg) rotateX(1deg) rotateZ(-0.5deg)' : 'none', 
               transformStyle: 'preserve-3d',
@@ -92,10 +92,10 @@ export function HeroVisual() {
       {/* 3. Floating Overlay Cards */}
 
       {/* Card 1: Skill Match Card (Top-Left) */}
-      <FloatingCard index={0} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute top-[12%] sm:-top-[2%] -left-1 sm:-left-3 lg:-left-5 z-30 w-32 sm:w-40 lg:w-44 rounded-2xl border border-black/[0.04] bg-white/98 p-2.5 sm:p-3 shadow-[0_8px_20px_rgba(20,20,40,0.08),0_2px_8px_rgba(20,20,40,0.04)] backdrop-blur-md">
+      <FloatingCard index={0} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute top-[12%] sm:-top-[2%] -left-1 sm:-left-3 lg:-left-5 z-30 w-32 sm:w-40 lg:w-44 rounded-2xl border border-[#141423]/[0.07] bg-white/98 p-2.5 sm:p-3 shadow-[0_16px_36px_rgba(20,20,35,0.10),0_4px_12px_rgba(20,20,35,0.05)] backdrop-blur-md">
         <div className="flex items-center justify-between">
           <span className="rounded-lg bg-blue-50 p-1 text-[var(--color-accent)]">
-            <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <polyline points="16 18 22 12 16 6" />
               <polyline points="8 6 2 12 8 18" />
             </svg>
@@ -105,10 +105,10 @@ export function HeroVisual() {
             96% Match
           </span>
         </div>
-        <p className="mt-1.5 text-[11px] sm:text-[12px] font-semibold text-[var(--color-text-primary)]">
+        <p className="mt-1.5 text-[11px] sm:text-[12px] font-semibold text-[#1c1c1e]">
           React Developer
         </p>
-        <p className="text-[9px] sm:text-[10px] text-[var(--color-text-secondary)]">
+        <p className="text-[9px] sm:text-[10px] font-medium text-[#5c5c62]">
           ₹9,000 • 2 weeks
         </p>
         <div className="mt-1.5 flex items-center gap-1.5">
@@ -120,28 +120,28 @@ export function HeroVisual() {
               R
             </span>
           </div>
-          <span className="text-[8px] sm:text-[9px] text-[var(--color-text-tertiary)]">
+          <span className="text-[8px] sm:text-[9px] font-medium text-[#7c7c82]">
             +8 applied
           </span>
         </div>
       </FloatingCard>
 
       {/* Card 2: Portfolio Growth Card (Bottom-Left - Tablet & Desktop) */}
-      <FloatingCard index={1} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden sm:block absolute bottom-[6%] sm:bottom-[8%] -left-0 sm:-left-3 lg:-left-5 z-30 w-32 sm:w-36 lg:w-40 rounded-2xl border border-black/[0.04] bg-white/98 p-2.5 sm:p-3 shadow-[0_8px_20px_rgba(20,20,40,0.08),0_2px_8px_rgba(20,20,40,0.04)] backdrop-blur-md">
+      <FloatingCard index={1} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden sm:block absolute bottom-[6%] sm:bottom-[8%] -left-0 sm:-left-3 lg:-left-5 z-30 w-32 sm:w-36 lg:w-40 rounded-2xl border border-[#141423]/[0.07] bg-white/98 p-2.5 sm:p-3 shadow-[0_16px_36px_rgba(20,20,35,0.10),0_4px_12px_rgba(20,20,35,0.05)] backdrop-blur-md">
         <div className="flex items-center justify-between">
-          <span className="text-[10px] sm:text-[11px] font-medium text-[var(--color-text-secondary)]">
+          <span className="text-[10px] sm:text-[11px] font-medium text-[#5c5c62]">
             Grow your portfolio
           </span>
           <span className="text-[9px] sm:text-[10px] font-semibold text-emerald-600">
             +70%
           </span>
         </div>
-        <p className="text-[9px] text-[var(--color-text-tertiary)]">
+        <p className="text-[9px] text-[#7c7c82]">
           Profile views
         </p>
         {/* SVG Sparkline Graph */}
         <div className="mt-1.5 h-7 w-full">
-          <svg className="h-full w-full overflow-visible" viewBox="0 0 100 32" fill="none">
+          <svg className="h-full w-full overflow-visible" viewBox="0 0 100 32" fill="none" aria-hidden="true">
             <defs>
               <linearGradient id="growthGrad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#0071e3" stopOpacity="0.25" />
@@ -163,15 +163,15 @@ export function HeroVisual() {
       </FloatingCard>
 
       {/* Card 3: Floating Project Opportunity Card (Top-Right - Desktop) */}
-      <FloatingCard index={2} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden lg:block absolute top-[4%] -right-2 lg:-right-4 z-30 w-40 rounded-2xl border border-black/[0.04] bg-white/98 p-3 shadow-[0_8px_20px_rgba(20,20,40,0.08),0_2px_8px_rgba(20,20,40,0.04)] backdrop-blur-md">
+      <FloatingCard index={2} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden lg:block absolute top-[4%] -right-2 lg:-right-4 z-30 w-40 rounded-2xl border border-[#141423]/[0.07] bg-white/98 p-3 shadow-[0_16px_36px_rgba(20,20,35,0.10),0_4px_12px_rgba(20,20,35,0.05)] backdrop-blur-md">
         <div className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[8px] font-semibold text-[var(--color-accent)] border border-blue-100">
           <span className="h-1 w-1 rounded-full bg-[var(--color-accent)]" />
           New Opportunity
         </div>
-        <p className="mt-1.5 text-[11px] font-semibold text-[var(--color-text-primary)]">
+        <p className="mt-1.5 text-[11px] font-semibold text-[#1c1c1e]">
           UI/UX Designer
         </p>
-        <p className="text-[9px] text-[var(--color-text-secondary)]">
+        <p className="text-[9px] font-medium text-[#5c5c62]">
           ₹5,000 • Remote
         </p>
         <div className="mt-1.5 flex justify-end">
@@ -182,15 +182,15 @@ export function HeroVisual() {
       </FloatingCard>
 
       {/* Card 4: Floating Project-Completed Card (Bottom-Right) */}
-      <FloatingCard index={3} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute bottom-[8%] sm:bottom-[10%] -right-0 sm:-right-2 lg:-right-4 z-30 w-32 sm:w-40 lg:w-44 rounded-2xl border border-black/[0.04] bg-white/98 p-2.5 sm:p-3 shadow-[0_8px_20px_rgba(20,20,40,0.08),0_2px_8px_rgba(20,20,40,0.04)] backdrop-blur-md">
+      <FloatingCard index={3} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute bottom-[8%] sm:bottom-[10%] -right-0 sm:-right-2 lg:-right-4 z-30 w-32 sm:w-40 lg:w-44 rounded-2xl border border-[#141423]/[0.07] bg-white/98 p-2.5 sm:p-3 shadow-[0_16px_36px_rgba(20,20,35,0.10),0_4px_12px_rgba(20,20,35,0.05)] backdrop-blur-md">
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
-            <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
               <polyline points="20 6 9 17 4 12" />
             </svg>
           </span>
           <div>
-            <p className="text-[10px] sm:text-[11px] font-semibold text-[var(--color-text-primary)]">
+            <p className="text-[10px] sm:text-[11px] font-semibold text-[#1c1c1e]">
               Project Completed!
             </p>
             <p className="text-[9px] sm:text-[10px] font-medium text-emerald-600">
@@ -198,9 +198,9 @@ export function HeroVisual() {
             </p>
           </div>
         </div>
-        <div className="mt-1.5 flex items-center justify-between border-t border-[var(--color-border-subtle)] pt-1 text-[8px] sm:text-[9px] text-[var(--color-text-secondary)]">
+        <div className="mt-1.5 flex items-center justify-between border-t border-[#14141e]/[0.06] pt-1.5 text-[8px] sm:text-[9px] text-[#636366]">
           <span>★ 5.0 client review</span>
-          <span className="font-medium text-[var(--color-accent)]">Paid</span>
+          <span className="font-semibold text-[var(--color-accent)]">Paid</span>
         </div>
       </FloatingCard>
       </div>

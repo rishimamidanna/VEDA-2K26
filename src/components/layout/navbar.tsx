@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
+import { useIntroPhase } from "@/components/intro";
 
 export interface NavItem {
   label: string;
@@ -24,6 +25,8 @@ export interface NavbarProps {
 
 export function Navbar({ className }: NavbarProps) {
   const reduced = useReducedMotion();
+  const phase = useIntroPhase();
+  const isRevealed = phase !== "playing";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -67,9 +70,16 @@ export function Navbar({ className }: NavbarProps) {
 
   return (
     <motion.header
-      initial={reduced ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: reduced ? 0 : 0.5 }}
+      initial={reduced ? false : { opacity: 0, y: -6 }}
+      animate={
+        isRevealed
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: reduced ? 0 : -6 }
+      }
+      transition={{
+        duration: reduced ? 0.35 : 0.6,
+        ease: [0.22, 1, 0.36, 1],
+      }}
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300 motion-reduce:transition-none",
         "bg-[var(--color-canvas-bg)]/85 backdrop-blur-md supports-[backdrop-filter]:bg-[var(--color-canvas-bg)]/75",
@@ -85,7 +95,7 @@ export function Navbar({ className }: NavbarProps) {
           <div className="flex items-center">
             <Link
               href="/"
-              className="group inline-flex items-center gap-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-md py-1"
+              className="group inline-flex items-center gap-2 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-md py-1"
               aria-label="SkillBridge Home"
               onClick={closeMobileMenu}
             >
@@ -105,7 +115,7 @@ export function Navbar({ className }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-[14px] font-medium text-[var(--color-text-secondary)] transition-colors duration-200 hover:text-[var(--color-text-primary)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-md px-1.5 py-1"
+                className="text-[14px] font-medium text-[var(--color-text-secondary)] transition-colors duration-200 hover:text-[var(--color-text-primary)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-md px-1.5 py-1"
               >
                 {item.label}
               </Link>
@@ -116,14 +126,14 @@ export function Navbar({ className }: NavbarProps) {
           <div className="hidden md:flex items-center gap-3 lg:gap-4">
             <Link
               href="#login"
-              className="text-[14px] font-medium text-[var(--color-text-secondary)] transition-colors duration-200 hover:text-[var(--color-text-primary)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-full px-4 py-2"
+              className="text-[14px] font-medium text-[var(--color-text-secondary)] transition-colors duration-200 hover:text-[var(--color-text-primary)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 rounded-full px-4 py-2 motion-safe:active:scale-[0.99]"
             >
               Log in
             </Link>
 
             <Link
               href="#get-started"
-              className="group inline-flex items-center gap-1.5 rounded-full bg-[var(--color-text-primary)] px-4.5 py-2 text-[14px] font-medium text-white shadow-xs transition-all duration-200 motion-reduce:transition-none hover:bg-black hover:shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] motion-safe:active:scale-[0.98]"
+              className="group inline-flex items-center gap-1.5 rounded-full bg-[var(--color-text-primary)] px-4.5 py-2 text-[14px] font-medium text-white shadow-xs transition-all duration-200 motion-reduce:transition-none hover:bg-black hover:shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 motion-safe:active:scale-[0.98]"
             >
               <span>Get Started</span>
               <span className="transition-transform duration-200 motion-safe:group-hover:translate-x-0.5">
