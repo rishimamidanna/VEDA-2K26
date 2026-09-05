@@ -28,10 +28,10 @@ export function useIdlePhase(active: boolean, duration: number, delay: number) {
 
 // Reference-inspired resting angles; idle and pointer transforms are additive.
 const bases = [
-  "translateZ(40px) rotateX(7deg) rotateY(-10deg) rotateZ(14deg)",
-  "translateZ(45px) rotateX(6deg) rotateY(-8deg) rotateZ(18deg)",
-  "translateZ(35px) rotateX(8deg) rotateY(-12deg) rotateZ(18deg)",
-  "translateZ(40px) rotateX(6deg) rotateY(10deg) rotateZ(-13deg)",
+  "translateZ(40px) rotateX(12deg) rotateY(10deg) rotateZ(-12deg)",
+  "translateZ(45px) rotateX(15deg) rotateY(12deg) rotateZ(-15deg)",
+  "translateZ(35px) rotateX(12deg) rotateY(-10deg) rotateZ(14deg)",
+  "translateZ(40px) rotateX(15deg) rotateY(-12deg) rotateZ(15deg)",
 ];
 const depths = [1.2, 0.8, 1.5, 1];
 // Independent paths and periods keep the axes from reversing in lockstep.

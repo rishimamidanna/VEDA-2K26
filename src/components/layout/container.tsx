@@ -25,8 +25,9 @@ export function Container({
   children,
   ...props
 }: ContainerProps) {
+  const Tag = Component as React.ComponentType<React.HTMLAttributes<HTMLElement>>;
   return (
-    <Component
+    <Tag
       className={cn(
         "w-full mx-auto px-4 sm:px-6 md:px-8 lg:px-12",
         sizeClasses[size],
@@ -35,6 +36,6 @@ export function Container({
       {...props}
     >
       {children}
-    </Component>
+    </Tag>
   );
 }
