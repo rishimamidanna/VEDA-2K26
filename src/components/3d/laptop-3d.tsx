@@ -119,7 +119,7 @@ function LaptopModel({ pointerX = 0, pointerY = 0, reduced = false }: Laptop3DPr
   });
 
   return (
-    <group ref={rootRef} scale={responsiveScale} position={[0, -0.2, 0]} rotation={[baseRotX, baseRotY, 0]}>
+    <group ref={rootRef} scale={responsiveScale} rotation={[baseRotX, baseRotY, 0]}>
       {/* ================= LOWER BASE / DECK ================= */}
       <group position={[0, 0, 0]}>
         {/* Main Light Silver Aluminum Chassis */}
@@ -235,25 +235,27 @@ export function Laptop3D({ pointerX = 0, pointerY = 0, reduced = false }: Laptop
         gl={{ antialias: true, alpha: true }}
         style={{ pointerEvents: "auto" }}
       >
-        {/* Soft Studio Lighting */}
-        <ambientLight intensity={1.05} color="#ffffff" />
-        <directionalLight position={[6, 9, 6]} intensity={1.7} color="#ffffff" />
-        <directionalLight position={[-6, 5, 4]} intensity={0.85} color="#e8f2ff" />
-        <directionalLight position={[0, 8, -1]} intensity={0.7} color="#ffffff" />
-        <directionalLight position={[0, -1, 5]} intensity={0.4} color="#ffffff" />
+        {/* Neutral studio lighting */}
+        <ambientLight intensity={0.95} color="#ffffff" />
+        <directionalLight position={[6, 9, 6]} intensity={1.45} color="#ffffff" />
+        <directionalLight position={[-6, 5, 4]} intensity={0.65} color="#f3f4f6" />
+        <directionalLight position={[0, 8, -1]} intensity={0.6} color="#ffffff" />
+        <directionalLight position={[0, -1, 5]} intensity={0.32} color="#ffffff" />
 
-        {/* 3D Laptop Model */}
-        <LaptopModel pointerX={pointerX} pointerY={pointerY} reduced={reduced} />
+        {/* Static composition offset; the model's existing motion remains unchanged. */}
+        <group position={[0, -0.85, 0]}>
+          <LaptopModel pointerX={pointerX} pointerY={pointerY} reduced={reduced} />
 
-        {/* Contact Shadow Under Base */}
-        <ContactShadows
-          position={[0, -0.26, 0]}
-          opacity={0.45}
-          scale={10.0}
-          blur={2.8}
-          far={3.5}
-          color="#0c0e12"
-        />
+          {/* Contact Shadow Under Base */}
+          <ContactShadows
+            position={[0, -0.26, 0]}
+            opacity={0.3}
+            scale={8.2}
+            blur={3.2}
+            far={3.5}
+            color="#181a1e"
+          />
+        </group>
       </Canvas>
     </div>
   );

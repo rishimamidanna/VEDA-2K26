@@ -71,15 +71,9 @@ export function HeroVisual() {
         style={{ rotateX: desktop && !reduced ? rotateX : 0, rotateY: desktop && !reduced ? rotateY : 0 }}
         className="relative w-full [transform-style:preserve-3d]">
         <div className="relative flex w-full items-center justify-center py-4 sm:py-8 lg:py-4 [perspective:1400px]">
-
-
-          {/* Circular 3D Pedestal */}
+          {/* Restrained studio floor shadow */}
           <div
-            className="pointer-events-none absolute bottom-0 left-1/2 h-14 sm:h-16 w-[88%] sm:w-[90%] -translate-x-1/2 rounded-[100%] bg-gradient-to-b from-white/90 via-[#f0f0f4] to-[#d8d8df] border border-black/5 shadow-[0_16px_40px_rgba(0,0,0,0.06)] [transform:rotateX(74deg)]"
-            aria-hidden="true"
-          />
-          <div
-            className="pointer-events-none absolute bottom-2 left-1/2 h-12 sm:h-14 w-[80%] sm:w-[82%] -translate-x-1/2 rounded-[100%] bg-gradient-to-b from-white to-[#f5f5f7] border border-black/5 [transform:rotateX(74deg)]"
+            className="pointer-events-none absolute bottom-[7%] left-1/2 h-7 w-[72%] -translate-x-1/2 rounded-[100%] bg-black/[0.035] blur-xl sm:h-9"
             aria-hidden="true"
           />
 
@@ -95,7 +89,7 @@ export function HeroVisual() {
       {/* 3. Floating Overlay Cards */}
 
       {/* Card 1: Skill Match Card (Top-Left) */}
-      <FloatingCard index={0} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute top-[18%] sm:top-[22%] -left-2 sm:-left-8 lg:-left-16 z-30 w-36 sm:w-44 lg:w-48 rounded-2xl border border-white/85 bg-white/95 p-2.5 sm:p-3.5 shadow-[0_20px_40px_rgba(0,0,0,0.12)] backdrop-blur-md">
+      <FloatingCard index={0} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute top-[18%] sm:top-[8%] -left-2 sm:-left-8 lg:-left-16 z-30 w-36 sm:w-44 lg:w-48 rounded-2xl border border-white/85 bg-white/95 p-2.5 sm:p-3.5 shadow-[0_16px_34px_rgba(0,0,0,0.09)] backdrop-blur-md">
         <div className="flex items-center justify-between">
           <span className="rounded-lg bg-blue-50 p-1 text-[var(--color-accent)]">
             <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -130,7 +124,7 @@ export function HeroVisual() {
       </FloatingCard>
 
       {/* Card 2: Portfolio Growth Card (Bottom-Left - Tablet & Desktop) */}
-      <FloatingCard index={1} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden sm:block absolute bottom-[8%] sm:bottom-[12%] -left-1 sm:-left-6 lg:-left-10 z-30 w-38 sm:w-42 lg:w-44 rounded-2xl border border-white/85 bg-white/95 p-3 shadow-[0_20px_40px_rgba(0,0,0,0.12)] backdrop-blur-md">
+      <FloatingCard index={1} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden sm:block absolute bottom-[8%] sm:bottom-[12%] -left-1 sm:-left-6 lg:-left-10 z-30 w-38 sm:w-42 lg:w-44 rounded-2xl border border-white/85 bg-white/95 p-3 shadow-[0_16px_34px_rgba(0,0,0,0.09)] backdrop-blur-md">
         <div className="flex items-center justify-between">
           <span className="text-[10px] sm:text-[11px] font-medium text-[var(--color-text-secondary)]">
             Grow your portfolio
@@ -166,7 +160,7 @@ export function HeroVisual() {
       </FloatingCard>
 
       {/* Card 3: Floating Project Opportunity Card (Top-Right - Desktop) */}
-      <FloatingCard index={2} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden lg:block absolute top-[12%] -right-4 lg:-right-12 z-30 w-42 rounded-2xl border border-white/85 bg-white/95 p-3 shadow-[0_20px_40px_rgba(0,0,0,0.12)] backdrop-blur-md">
+      <FloatingCard index={2} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="hidden lg:block absolute top-[5%] -right-4 lg:-right-12 z-30 w-42 rounded-2xl border border-white/85 bg-white/95 p-3 shadow-[0_16px_34px_rgba(0,0,0,0.09)] backdrop-blur-md">
         <div className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[8px] font-semibold text-[var(--color-accent)] border border-blue-100">
           <span className="h-1 w-1 rounded-full bg-[var(--color-accent)]" />
           New Opportunity
@@ -185,7 +179,7 @@ export function HeroVisual() {
       </FloatingCard>
 
       {/* Card 4: Floating Project-Completed Card (Bottom-Right) */}
-      <FloatingCard index={3} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute bottom-[10%] sm:bottom-[15%] -right-1 sm:-right-6 lg:-right-12 z-30 w-38 sm:w-44 lg:w-48 rounded-2xl border border-white/85 bg-white/95 p-2.5 sm:p-3 shadow-[0_20px_40px_rgba(0,0,0,0.12)] backdrop-blur-md">
+      <FloatingCard index={3} active={!reduced && visible} pointerActive={desktop && !reduced} reduced={!!reduced} rotateX={rotateX} rotateY={rotateY} className="absolute bottom-[10%] sm:bottom-[15%] -right-1 sm:-right-6 lg:-right-12 z-30 w-38 sm:w-44 lg:w-48 rounded-2xl border border-white/85 bg-white/95 p-2.5 sm:p-3 shadow-[0_16px_34px_rgba(0,0,0,0.09)] backdrop-blur-md">
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span className="flex h-5 w-5 sm:h-6 sm:w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
             <svg className="h-3 w-3 sm:h-3.5 sm:w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
