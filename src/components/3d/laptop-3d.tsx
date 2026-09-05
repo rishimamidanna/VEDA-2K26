@@ -12,69 +12,60 @@ interface Laptop3DProps {
   reduced?: boolean;
 }
 
-// Low-poly keyboard rows for authentic deck impression without excessive geometry
 function KeyboardDeck() {
   const keyRows = useMemo(() => [
-    { count: 14, depth: 0.12, width: 0.24, z: -1.14 },
-    { count: 14, depth: 0.18, width: 0.24, z: -0.92 },
-    { count: 14, depth: 0.18, width: 0.24, z: -0.68 },
-    { count: 14, depth: 0.18, width: 0.24, z: -0.44 },
-    { count: 14, depth: 0.18, width: 0.24, z: -0.20 },
-    { count: 7, depth: 0.20, width: 0.44, z: 0.04, isBottom: true },
+    { count: 14, depth: 0.11, width: 0.20, z: -0.95 },
+    { count: 14, depth: 0.13, width: 0.20, z: -0.80 },
+    { count: 14, depth: 0.13, width: 0.20, z: -0.64 },
+    { count: 14, depth: 0.13, width: 0.20, z: -0.48 },
+    { count: 14, depth: 0.13, width: 0.20, z: -0.32 },
   ], []);
 
+  const bottomRowWidths = [0.20, 0.20, 0.24, 1.34, 0.24, 0.20, 0.20];
+  const bottomRowZ = -0.16;
+
+  const trayWidth = 3.32;
+  const trayDepth = 1.04;
+  const spacing = 0.23;
+
   return (
-    <group position={[0, 0.06, 0]}>
-      {/* Recessed keyboard tray */}
-      <mesh position={[0, -0.005, -0.54]}>
-        <boxGeometry args={[4.1, 0.015, 1.55]} />
-        <meshStandardMaterial color="#141619" roughness={0.75} metalness={0.2} />
+    <group position={[0, 0.031, 0]}>
+      {/* Recessed keyboard tray with subtle AO shadow appearance */}
+      <mesh position={[0, -0.005, -0.555]}>
+        <RoundedBox args={[trayWidth, 0.01, trayDepth]} radius={0.015} smoothness={4}>
+          <meshStandardMaterial color="#1a1b1d" roughness={0.7} metalness={0.2} />
+        </RoundedBox>
       </mesh>
 
       {/* Stylized chiclet key rows */}
       {keyRows.map((row, rIdx) => {
-        if (row.isBottom) {
-          return (
-            <group key={rIdx} position={[0, 0.005, row.z]}>
-              <mesh position={[-1.6, 0, 0]}>
-                <boxGeometry args={[0.38, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
-              <mesh position={[-1.15, 0, 0]}>
-                <boxGeometry args={[0.38, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
-              {/* Spacebar */}
-              <mesh position={[0, 0, 0]}>
-                <boxGeometry args={[1.7, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
-              <mesh position={[1.15, 0, 0]}>
-                <boxGeometry args={[0.38, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
-              <mesh position={[1.6, 0, 0]}>
-                <boxGeometry args={[0.38, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
-            </group>
-          );
-        }
-
-        const spacing = 0.28;
         const startX = -((row.count - 1) * spacing) / 2;
-
         return (
-          <group key={rIdx} position={[0, 0.005, row.z]}>
+          <group key={rIdx} position={[0, 0.003, row.z]}>
             {Array.from({ length: row.count }).map((_, kIdx) => (
-              <mesh key={kIdx} position={[startX + kIdx * spacing, 0, 0]}>
-                <boxGeometry args={[row.width, 0.015, row.depth]} />
-                <meshStandardMaterial color="#1e2025" roughness={0.48} metalness={0.22} />
-              </mesh>
+              <RoundedBox key={kIdx} args={[row.width, 0.012, row.depth]} radius={0.015} smoothness={2} position={[startX + kIdx * spacing, 0, 0]}>
+                <meshStandardMaterial color="#26282b" roughness={0.65} metalness={0.15} />
+              </RoundedBox>
             ))}
           </group>
         );
       })}
+
+      {/* Bottom symmetrical row */}
+      <group position={[0, 0.003, bottomRowZ]}>
+        {bottomRowWidths.map((width, i) => {
+          // Calculate X position so the row is centered and perfectly spaced
+          const prevWidths = bottomRowWidths.slice(0, i).reduce((a, b) => a + b, 0);
+          const totalWidth = bottomRowWidths.reduce((a, b) => a + b, 0) + (bottomRowWidths.length - 1) * (spacing - 0.20);
+          const startX = -(totalWidth / 2) + (width / 2);
+          const currentX = startX + prevWidths + i * (spacing - 0.20);
+          return (
+            <RoundedBox key={i} args={[width, 0.012, 0.14]} radius={0.015} smoothness={2} position={[currentX, 0, 0]}>
+              <meshStandardMaterial color="#26282b" roughness={0.65} metalness={0.15} />
+            </RoundedBox>
+          );
+        })}
+      </group>
     </group>
   );
 }
@@ -122,91 +113,80 @@ function LaptopModel({ pointerX = 0, pointerY = 0, reduced = false }: Laptop3DPr
     <group ref={rootRef} scale={responsiveScale} rotation={[baseRotX, baseRotY, 0]}>
       {/* ================= LOWER BASE / DECK ================= */}
       <group position={[0, 0, 0]}>
-        {/* Main Light Silver Aluminum Chassis */}
-        <RoundedBox args={[4.8, 0.11, 3.2]} radius={0.06} smoothness={4} position={[0, 0, 0]}>
-          <meshStandardMaterial color="#eef0f3" roughness={0.34} metalness={0.48} />
+        {/* Main Light Silver Aluminum Chassis (Thinner, precision machined) */}
+        <RoundedBox args={[4.8, 0.06, 3.2]} radius={0.015} smoothness={4} position={[0, 0, 0]}>
+          <meshStandardMaterial color="#e3e4e5" roughness={0.4} metalness={0.4} />
         </RoundedBox>
 
         {/* Keyboard Deck & Recess */}
         <KeyboardDeck />
 
         {/* Trackpad with Hairline Accent */}
-        <group position={[0, 0.058, 0.86]}>
+        <group position={[0, 0.03, 0.65]}>
           {/* Subtle Trackpad Well Border */}
-          <mesh position={[0, -0.002, 0]}>
-            <boxGeometry args={[1.68, 0.006, 1.08]} />
-            <meshStandardMaterial color="#cbd0d8" roughness={0.35} metalness={0.45} />
-          </mesh>
+          <RoundedBox args={[1.82, 0.004, 1.12]} radius={0.02} smoothness={2} position={[0, -0.001, 0]}>
+            <meshStandardMaterial color="#c6c9ce" roughness={0.4} metalness={0.4} />
+          </RoundedBox>
           {/* Glass-feel Trackpad Surface */}
-          <mesh position={[0, 0.001, 0]}>
-            <boxGeometry args={[1.65, 0.008, 1.05]} />
-            <meshStandardMaterial color="#e2e5ea" roughness={0.32} metalness={0.38} />
-          </mesh>
+          <RoundedBox args={[1.8, 0.004, 1.1]} radius={0.02} smoothness={2} position={[0, 0.001, 0]}>
+            <meshStandardMaterial color="#d1d4d8" roughness={0.25} metalness={0.3} />
+          </RoundedBox>
         </group>
 
         {/* Thumb Scoop Notch on Front Lip */}
-        <mesh position={[0, 0.038, 1.58]}>
-          <boxGeometry args={[0.7, 0.035, 0.06]} />
-          <meshStandardMaterial color="#5f6368" roughness={0.5} metalness={0.5} />
+        <mesh position={[0, 0.015, 1.58]}>
+          <boxGeometry args={[0.7, 0.02, 0.05]} />
+          <meshStandardMaterial color="#7a7f85" roughness={0.5} metalness={0.5} />
         </mesh>
 
         {/* Thin Front Chamfer Highlight Strip */}
-        <mesh position={[0, 0.05, 1.595]}>
-          <boxGeometry args={[4.6, 0.01, 0.01]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.8} />
+        <mesh position={[0, 0.025, 1.595]}>
+          <boxGeometry args={[4.76, 0.005, 0.005]} />
+          <meshStandardMaterial color="#ffffff" roughness={0.1} metalness={0.9} />
         </mesh>
       </group>
 
       {/* ================= HINGE ================= */}
-      <group position={[0, 0.065, -1.55]}>
-        {/* Central Cylindrical Hinge Barrel */}
+      <group position={[0, 0.035, -1.55]}>
+        {/* Sleek, Single Integrated Hinge Barrel */}
         <mesh rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.07, 0.07, 1.8, 24]} />
-          <meshStandardMaterial color="#16181b" roughness={0.4} metalness={0.8} />
-        </mesh>
-        {/* Outer Hinge Spacers */}
-        <mesh position={[-1.0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.065, 0.065, 0.15, 16]} />
-          <meshStandardMaterial color="#d8dce2" roughness={0.3} metalness={0.7} />
-        </mesh>
-        <mesh position={[1.0, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.065, 0.065, 0.15, 16]} />
-          <meshStandardMaterial color="#d8dce2" roughness={0.3} metalness={0.7} />
+          <cylinderGeometry args={[0.035, 0.035, 2.8, 32]} />
+          <meshStandardMaterial color="#3a3c40" roughness={0.3} metalness={0.6} />
         </mesh>
       </group>
 
       {/* ================= SCREEN LID ================= */}
       {/* Pivot at hinge: tilted open at ~104 degrees (rotation around X) */}
-      <group position={[0, 0.065, -1.55]} rotation={[-0.22, 0, 0]}>
-        {/* Outer Back Light Aluminum Cover */}
-        <RoundedBox args={[4.8, 3.12, 0.07]} radius={0.06} smoothness={4} position={[0, 1.56, -0.01]}>
-          <meshStandardMaterial color="#eef0f3" roughness={0.34} metalness={0.48} />
+      <group position={[0, 0.035, -1.55]} rotation={[-0.22, 0, 0]}>
+        {/* Outer Back Light Aluminum Cover (Thinner, refined edges) */}
+        <RoundedBox args={[4.76, 3.06, 0.03]} radius={0.015} smoothness={4} position={[0, 1.53, -0.015]}>
+          <meshStandardMaterial color="#e3e4e5" roughness={0.4} metalness={0.4} />
         </RoundedBox>
 
         {/* Inner Dark Screen Bezel Assembly */}
-        <RoundedBox args={[4.7, 3.02, 0.015]} radius={0.04} smoothness={3} position={[0, 1.56, 0.028]}>
+        <RoundedBox args={[4.7, 3.0, 0.01]} radius={0.01} smoothness={3} position={[0, 1.53, 0.005]}>
           <meshStandardMaterial color="#090a0c" roughness={0.38} metalness={0.25} />
         </RoundedBox>
 
         {/* Camera Dot */}
-        <mesh position={[0, 3.0, 0.038]}>
-          <sphereGeometry args={[0.02, 16, 16]} />
+        <mesh position={[0, 2.95, 0.011]}>
+          <sphereGeometry args={[0.015, 16, 16]} />
           <meshStandardMaterial color="#030408" roughness={0.1} metalness={0.9} />
         </mesh>
 
         {/* Active Screen Surface & HTML Overlay */}
-        <group position={[0, 1.53, 0.038]}>
+        <group position={[0, 1.50, 0.011]}>
           {/* Dark display background behind HTML overlay */}
           <mesh position={[0, 0, -0.001]}>
-            <planeGeometry args={[4.48, 2.8]} />
-            <meshBasicMaterial color="#0a0b0e" />
+            <planeGeometry args={[4.6, 2.9]} />
+            <meshBasicMaterial color="#000000" />
           </mesh>
 
           {/* Real SkillBridge Dashboard with Live Scrolling Feed */}
           <Html
             transform
             distanceFactor={3.38}
-            position={[0, 0, 0.004]}
+            position={[0, 0, 0.001]}
             occlude={false}
             className="select-none"
             style={{
@@ -220,6 +200,12 @@ function LaptopModel({ pointerX = 0, pointerY = 0, reduced = false }: Laptop3DPr
               <DashboardContent reduced={reduced} />
             </div>
           </Html>
+
+          {/* Subtle Screen Glass Reflection Layer */}
+          <mesh position={[0, 0, 0.002]}>
+            <planeGeometry args={[4.6, 2.9]} />
+            <meshStandardMaterial color="#ffffff" roughness={0.1} metalness={0.8} transparent opacity={0.06} depthWrite={false} />
+          </mesh>
         </group>
       </group>
     </group>
@@ -235,12 +221,16 @@ export function Laptop3D({ pointerX = 0, pointerY = 0, reduced = false }: Laptop
         gl={{ antialias: true, alpha: true }}
         style={{ pointerEvents: "auto" }}
       >
-        {/* Neutral studio lighting */}
-        <ambientLight intensity={0.95} color="#ffffff" />
-        <directionalLight position={[6, 9, 6]} intensity={1.45} color="#ffffff" />
-        <directionalLight position={[-6, 5, 4]} intensity={0.65} color="#f3f4f6" />
-        <directionalLight position={[0, 8, -1]} intensity={0.6} color="#ffffff" />
-        <directionalLight position={[0, -1, 5]} intensity={0.32} color="#ffffff" />
+        {/* Professional Studio Product Lighting */}
+        <ambientLight intensity={0.5} color="#ffffff" />
+        {/* Soft Key Light from upper-left/front */}
+        <directionalLight position={[-8, 10, 8]} intensity={1.8} color="#ffffff" />
+        {/* Gentle Fill from lower-right */}
+        <directionalLight position={[8, 4, 4]} intensity={0.7} color="#f0f4f8" />
+        {/* Subtle Rim/Edge Highlight from back-top */}
+        <directionalLight position={[0, 10, -10]} intensity={1.2} color="#ffffff" />
+        {/* Under-light to soften harsh bottom shadows */}
+        <directionalLight position={[0, -5, 5]} intensity={0.4} color="#ffffff" />
 
         {/* Static composition offset; the model's existing motion remains unchanged. */}
         <group position={[0, -0.85, 0]}>
@@ -249,11 +239,11 @@ export function Laptop3D({ pointerX = 0, pointerY = 0, reduced = false }: Laptop
           {/* Contact Shadow Under Base */}
           <ContactShadows
             position={[0, -0.26, 0]}
-            opacity={0.3}
-            scale={8.2}
-            blur={3.2}
-            far={3.5}
-            color="#181a1e"
+            opacity={0.45}
+            scale={9.0}
+            blur={2.5}
+            far={4.0}
+            color="#08090a"
           />
         </group>
       </Canvas>
