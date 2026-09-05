@@ -14,7 +14,7 @@ export const projects = [
 
 export function ProjectCard({ project }: { project: typeof projects[number] }) {
   return (
-    <div className="rounded-lg border border-[var(--color-border-subtle)] bg-white p-2.5 shadow-xs transition-shadow hover:shadow-sm">
+    <div className="rounded-lg border border-[var(--color-border-subtle)] bg-white p-3 shadow-xs transition-colors hover:border-blue-200 hover:shadow-sm">
       <div className="flex items-start justify-between gap-1.5">
         <div>
           <h4 className="text-[12px] font-semibold text-[var(--color-text-primary)]">
@@ -45,7 +45,7 @@ export function ProjectFeed({ reduced }: { reduced: boolean }) {
   if (reduced) return <div className="space-y-2">{firstTwo}</div>;
 
   return (
-    <div className="relative h-[220px] overflow-hidden">
+    <div className="relative flex-1 w-full overflow-hidden">
       <div
         className="absolute inset-0 overflow-hidden"
         style={{

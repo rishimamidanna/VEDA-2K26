@@ -38,11 +38,11 @@ export function Hero() {
 
             {/* Headline */}
             <motion.h1 {...reveal(0.15)} className="text-4xl sm:text-5xl lg:text-[54px] xl:text-[60px] font-semibold tracking-[-0.035em] leading-[1.08] text-[var(--color-text-primary)]">
-              <span>Real projects.</span>
+              <span className="text-[var(--color-text-primary)]">Real projects.</span>
               <br />
-              <span>Real experience.</span>
+              <span className="text-[var(--color-text-primary)]">Real experience.</span>
               <br />
-              <span className="text-[var(--color-text-tertiary)] transition-colors duration-300">
+              <span className="bg-gradient-to-r from-[#7C8CFF] to-[#A78BFA] bg-clip-text text-transparent transition-colors duration-300">
                 A brighter you.
               </span>
             </motion.h1>
