@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ClientProjectDetail } from "@/data/client-projects";
 import {
-  ProjectApplicant,
-  ApplicantReviewStatus,
-  SEEDED_PROJECT_APPLICANTS,
-} from "@/data/project-applicants";
+  clientApplicationsRepository,
+  type ProjectApplication,
+  type ApplicationStatus,
+} from "@/lib/client-applications-repository";
 
 export interface ProjectApplicantsPipelineProps {
   project: ClientProjectDetail;
@@ -19,31 +19,49 @@ type FilterTab = "All" | "Shortlisted" | "Accepted" | "Rejected";
 export function ProjectApplicantsPipeline({
   project,
 }: ProjectApplicantsPipelineProps) {
-  // Initialize local applicant list from seeded data for demo interactivity
-  const initialList = SEEDED_PROJECT_APPLICANTS[project.id] || [];
-  const [applicants, setApplicants] = useState<ProjectApplicant[]>(initialList);
+  // Read applicants from the persistent repository
+  const [applicants, setApplicants] = useState<ProjectApplication[]>(() =>
+    clientApplicationsRepository.getApplicationsByProjectId(project.id)
+  );
   const [activeFilter, setActiveFilter] = useState<FilterTab>("All");
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [rejectConfirmId, setRejectConfirmId] = useState<string | null>(null);
   const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
 
-  // Status transition handlers
-  const handleUpdateStatus = (applicantId: string, newStatus: ApplicantReviewStatus) => {
-    setApplicants((prev) =>
-      prev.map((app) =>
-        app.id === applicantId ? { ...app, status: newStatus } : app
-      )
-    );
+  // Sync state when storage updates or external application added
+  useEffect(() => {
+    const handleUpdate = () => {
+      setApplicants(clientApplicationsRepository.getApplicationsByProjectId(project.id));
+    };
 
-    const applicant = applicants.find((a) => a.id === applicantId);
-    const applicantName = applicant ? applicant.name : "Candidate";
+    window.addEventListener("skillbridge_applications_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("skillbridge_applications_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, [project.id]);
+
+  // Status transition handlers using the applications repository
+  const handleUpdateStatus = (applicantId: string, newStatus: ApplicationStatus) => {
+    const updated = clientApplicationsRepository.updateApplicantStatus(
+      project.id,
+      applicantId,
+      newStatus
+    );
+    setApplicants(updated);
+
+    const applicant = updated.find((a) => a.id === applicantId);
+    const applicantName = applicant ? applicant.studentName : "Candidate";
 
     if (newStatus === "Shortlisted") {
       setFeedbackToast(`${applicantName} has been shortlisted.`);
     } else if (newStatus === "Accepted") {
-      setFeedbackToast(`${applicantName} has been accepted! (Demo Mode)`);
+      setFeedbackToast(`${applicantName} has been accepted!`);
     } else if (newStatus === "Rejected") {
       setFeedbackToast(`${applicantName} has been marked as rejected.`);
+    } else if (newStatus === "Applied") {
+      setFeedbackToast(`${applicantName} returned to Applied review.`);
     }
 
     setRejectConfirmId(null);
@@ -65,7 +83,7 @@ export function ProjectApplicantsPipeline({
     };
   }, [applicants]);
 
-  const getStatusBadge = (status: ApplicantReviewStatus) => {
+  const getStatusBadge = (status: ApplicationStatus) => {
     switch (status) {
       case "Shortlisted":
         return "bg-amber-50 text-amber-700 border-amber-200/60";
@@ -240,8 +258,13 @@ export function ProjectApplicantsPipeline({
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-base sm:text-lg font-semibold tracking-tight text-[var(--color-text-primary)]">
-                        {applicant.name}
+                        {applicant.studentName}
                       </h2>
+                      {applicant.isSeededDemo && (
+                        <span className="inline-flex items-center rounded-full bg-[var(--color-canvas-surface)] border border-[var(--color-border-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-text-tertiary)]">
+                          Demo applicant
+                        </span>
+                      )}
                       <span
                         className={cn(
                           "inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
@@ -252,7 +275,7 @@ export function ProjectApplicantsPipeline({
                       </span>
                     </div>
                     <p className="text-[13px] font-medium text-[var(--color-text-secondary)]">
-                      {applicant.headline}
+                      {applicant.studentHeadline}
                     </p>
                     <p
                       className="text-[12px] text-[var(--color-text-tertiary)] mt-0.5"
@@ -265,7 +288,7 @@ export function ProjectApplicantsPipeline({
                 <div className="flex items-center gap-2 self-start sm:self-auto">
                   <div className="flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 px-3 py-1 text-emerald-800">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span className="text-[12px] font-semibold">{applicant.demoMatchScore}</span>
+                    <span className="text-[12px] font-semibold">{applicant.matchScore || "90%"}</span>
                     <span className="text-[10px] text-emerald-600 uppercase tracking-wider font-medium">demo match</span>
                   </div>
                 </div>
@@ -277,7 +300,7 @@ export function ProjectApplicantsPipeline({
                   Relevant Skills
                 </span>
                 <div className="flex flex-wrap gap-1.5">
-                  {applicant.relevantSkills.map((skill) => (
+                  {applicant.skills.map((skill) => (
                     <span
                       key={skill}
                       className="inline-flex items-center rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-canvas-surface)] px-2.5 py-1 text-[11px] font-medium text-[var(--color-text-secondary)]"
@@ -358,7 +381,7 @@ export function ProjectApplicantsPipeline({
                       </span>
                       <button
                         type="button"
-                        onClick={() => handleUpdateStatus(applicant.id, "Under Review")}
+                        onClick={() => handleUpdateStatus(applicant.id, "Applied")}
                         className="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline px-2 py-1 focus-visible:outline-hidden"
                       >
                         Change
@@ -374,7 +397,7 @@ export function ProjectApplicantsPipeline({
                       </span>
                       <button
                         type="button"
-                        onClick={() => handleUpdateStatus(applicant.id, "Under Review")}
+                        onClick={() => handleUpdateStatus(applicant.id, "Applied")}
                         className="text-[12px] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:underline px-2 py-1 focus-visible:outline-hidden"
                       >
                         Reopen
@@ -382,7 +405,7 @@ export function ProjectApplicantsPipeline({
                     </div>
                   )}
 
-                  {/* State 3: When Candidate is Under Review or Shortlisted */}
+                  {/* State 3: When Candidate is Applied or Shortlisted */}
                   {applicant.status !== "Accepted" && applicant.status !== "Rejected" && (
                     <>
                       {/* Shortlist Button */}
@@ -391,7 +414,7 @@ export function ProjectApplicantsPipeline({
                         onClick={() =>
                           handleUpdateStatus(
                             applicant.id,
-                            applicant.status === "Shortlisted" ? "Under Review" : "Shortlisted"
+                            applicant.status === "Shortlisted" ? "Applied" : "Shortlisted"
                           )
                         }
                         className={cn(
