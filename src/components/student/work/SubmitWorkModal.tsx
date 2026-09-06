@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, UploadCloud, CheckCircle2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 interface SubmitWorkModalProps {
   isOpen: boolean;

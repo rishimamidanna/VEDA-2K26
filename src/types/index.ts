@@ -126,3 +126,61 @@ export interface WorkProject {
   review?: string;
   earnings?: string;
 }
+
+// ─── Profile Types ───────────────────────────────────────────────────────────
+
+export interface Experience {
+  id: string;
+  role: string;
+  company: string;
+  duration: string;
+  description: string;
+}
+
+export interface Education {
+  id: string;
+  degree: string;
+  institution: string;
+  duration: string;
+}
+
+export interface PortfolioProject {
+  id: string;
+  title: string;
+  description: string;
+  technologies: string[];
+  projectType: string;
+  completionDate?: string;
+  githubUrl?: string;
+  demoUrl?: string;
+}
+
+export interface StudentProfile {
+  id: string;
+  name: string;
+  headline: string;
+  about: string;
+  location: string;
+  availability: string;
+  completionPercentage: number;
+  isPublic: boolean;
+  
+  stats: {
+    projectsCompleted: number;
+    projectsInProgress: number;
+    clientRating: number;
+    profileViews: number;
+  };
+  
+  primarySkills: string[];
+  additionalSkills: string[];
+  
+  skillProfile: {
+    category: string;
+    score: number;
+  }[];
+  
+  experience: Experience[];
+  education: Education[];
+  portfolio: PortfolioProject[];
+}

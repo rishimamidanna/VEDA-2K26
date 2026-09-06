@@ -31,3 +31,6 @@ export * from "./applications";
 // Work components
 export * from "./work";
 
+// Profile components
+export * from "./profile";
+
