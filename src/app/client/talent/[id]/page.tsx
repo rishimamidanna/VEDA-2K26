@@ -1,7 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DEMO_STUDENT_TALENT } from "@/data/student-talent";
+import { studentTalentRepository } from "@/lib/student-talent-repository";
 import { StudentProfileView } from "@/components/client";
 
 interface PageProps {
@@ -9,12 +9,12 @@ interface PageProps {
 }
 
 export async function generateStaticParams() {
-  return DEMO_STUDENT_TALENT.map((s) => ({ id: s.id }));
+  return studentTalentRepository.getAllStudents().map((s) => ({ id: s.id }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const student = DEMO_STUDENT_TALENT.find((s) => s.id === id);
+  const student = studentTalentRepository.getStudentById(id);
 
   if (!student) {
     return {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function StudentDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const student = DEMO_STUDENT_TALENT.find((s) => s.id === id);
+  const student = studentTalentRepository.getStudentById(id);
 
   if (!student) {
     return (

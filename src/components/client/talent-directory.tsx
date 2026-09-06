@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { DEMO_STUDENT_TALENT } from "@/data/student-talent";
+import { studentTalentRepository } from "@/lib/student-talent-repository";
 
 const EXPERTISE_OPTIONS = [
   "All Categories",
@@ -42,47 +42,14 @@ export function TalentDirectory() {
   const [selectedAvailability, setSelectedAvailability] = useState("All Availabilities");
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
 
-  // Filter and Search Logic
+  // Filter and Search Logic via repository
   const filteredTalent = useMemo(() => {
-    return DEMO_STUDENT_TALENT.filter((student) => {
-      // 1. Search query across name, headline, skills, college
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesName = student.name.toLowerCase().includes(query);
-        const matchesHeadline = student.headline.toLowerCase().includes(query);
-        const matchesCollege = student.college.toLowerCase().includes(query);
-        const matchesSkills = student.skills.some((s) =>
-          s.toLowerCase().includes(query)
-        );
-        if (!matchesName && !matchesHeadline && !matchesCollege && !matchesSkills) {
-          return false;
-        }
-      }
-
-      // 2. Category / Expertise filter
-      if (selectedExpertise !== "All Categories" && student.expertise !== selectedExpertise) {
-        return false;
-      }
-
-      // 3. Experience filter
-      if (selectedExperience !== "All Levels" && student.experience !== selectedExperience) {
-        return false;
-      }
-
-      // 4. Availability filter
-      if (
-        selectedAvailability !== "All Availabilities" &&
-        student.availability !== selectedAvailability
-      ) {
-        return false;
-      }
-
-      // 5. Skill filter pill
-      if (selectedSkill && !student.skills.includes(selectedSkill)) {
-        return false;
-      }
-
-      return true;
+    return studentTalentRepository.filterStudents({
+      searchQuery,
+      expertise: selectedExpertise,
+      experience: selectedExperience,
+      availability: selectedAvailability,
+      skill: selectedSkill || undefined,
     });
   }, [
     searchQuery,

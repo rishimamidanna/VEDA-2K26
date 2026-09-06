@@ -7,7 +7,7 @@ import {
   type ProjectApplication,
 } from "@/lib/client-applications-repository";
 import { clientProjectsRepository } from "@/lib/client-projects-repository";
-import { DEMO_STUDENT_TALENT } from "@/data/student-talent";
+import { studentTalentRepository } from "@/lib/student-talent-repository";
 
 interface HiredStudentViewItem {
   application: ProjectApplication;
@@ -18,6 +18,7 @@ interface HiredStudentViewItem {
 
 function loadHiredStudents(): HiredStudentViewItem[] {
   const acceptedApps = clientApplicationsRepository.getAcceptedApplications();
+  const allStudents = studentTalentRepository.getAllStudents();
 
   return acceptedApps.map((app) => {
     const project = clientProjectsRepository.getProjectById(app.projectId);
@@ -25,7 +26,7 @@ function loadHiredStudents(): HiredStudentViewItem[] {
     const projectStatus = project ? project.status : "In Progress";
 
     // Match with known student talent profile by name or explicit studentId if present
-    const matchedProfile = DEMO_STUDENT_TALENT.find(
+    const matchedProfile = allStudents.find(
       (s) => s.id === app.studentId || s.name.toLowerCase() === app.studentName.toLowerCase()
     );
 
