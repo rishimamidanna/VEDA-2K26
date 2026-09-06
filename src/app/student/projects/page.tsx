@@ -11,7 +11,7 @@ import {
   FullProjectCard,
   ProjectEmptyState,
 } from "@/components/student";
-import { allProjects } from "@/data/projects";
+import { useSharedProjects } from "@/lib/shared-repository";
 import type { ProjectFilters as FiltersType, SortOption } from "@/types";
 
 const INITIAL_FILTERS: FiltersType = {
@@ -34,6 +34,7 @@ export default function FindProjectsPage() {
   };
 
   // Filter and sort logic
+  const allProjects = useSharedProjects();
   const filteredProjects = useMemo(() => {
     let result = [...allProjects];
 
@@ -63,19 +64,19 @@ export default function FindProjectsPage() {
     }
     if (filters.budgetRange) {
       result = result.filter((p) => {
-        if (filters.budgetRange === "Under ₹5,000") return p.budgetValue < 5000;
-        if (filters.budgetRange === "₹5,000–₹10,000") return p.budgetValue >= 5000 && p.budgetValue <= 10000;
-        if (filters.budgetRange === "₹10,000–₹25,000") return p.budgetValue > 10000 && p.budgetValue <= 25000;
-        if (filters.budgetRange === "₹25,000+") return p.budgetValue > 25000;
+        if (filters.budgetRange === "Under ₹5,000") return p.budgetValue! < 5000;
+        if (filters.budgetRange === "₹5,000–₹10,000") return p.budgetValue! >= 5000 && p.budgetValue! <= 10000;
+        if (filters.budgetRange === "₹10,000–₹25,000") return p.budgetValue! > 10000 && p.budgetValue! <= 25000;
+        if (filters.budgetRange === "₹25,000+") return p.budgetValue! > 25000;
         return true;
       });
     }
     if (filters.duration) {
       result = result.filter((p) => {
-        if (filters.duration === "Less than 1 week") return p.durationWeeks < 1;
-        if (filters.duration === "1–2 weeks") return p.durationWeeks >= 1 && p.durationWeeks <= 2;
-        if (filters.duration === "2–4 weeks") return p.durationWeeks > 2 && p.durationWeeks <= 4;
-        if (filters.duration === "1+ month") return p.durationWeeks > 4;
+        if (filters.duration === "Less than 1 week") return p.durationWeeks! < 1;
+        if (filters.duration === "1–2 weeks") return p.durationWeeks! >= 1 && p.durationWeeks! <= 2;
+        if (filters.duration === "2–4 weeks") return p.durationWeeks! > 2 && p.durationWeeks! <= 4;
+        if (filters.duration === "1+ month") return p.durationWeeks! > 4;
         return true;
       });
     }
@@ -87,15 +88,15 @@ export default function FindProjectsPage() {
           // Mock sorting by parsing "X hours ago", but for now just reverse id as a mock
           return parseInt(b.id) - parseInt(a.id);
         case "Budget: High to Low":
-          return b.budgetValue - a.budgetValue;
+          return b.budgetValue! - a.budgetValue!;
         case "Budget: Low to High":
-          return a.budgetValue - b.budgetValue;
+          return a.budgetValue! - b.budgetValue!;
         case "Deadline":
           // Mock sorting by deadline string comparison
           return (a.deadline || "").localeCompare(b.deadline || "");
         case "Recommended":
         default:
-          return b.matchPercentage - a.matchPercentage;
+          return b.matchPercentage! - a.matchPercentage!;
       }
     });
 
@@ -107,7 +108,7 @@ export default function FindProjectsPage() {
     if (searchQuery || Object.values(filters).some((v) => v && (Array.isArray(v) ? v.length > 0 : true))) {
       return [];
     }
-    return [...allProjects].sort((a, b) => b.matchPercentage - a.matchPercentage).slice(0, 3);
+    return [...allProjects].sort((a, b) => b.matchPercentage! - a.matchPercentage!).slice(0, 3);
   }, [searchQuery, filters]);
 
   return (

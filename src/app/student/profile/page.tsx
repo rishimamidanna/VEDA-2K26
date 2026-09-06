@@ -37,7 +37,7 @@ export default function StudentProfilePage() {
       id: w.id,
       rating: w.rating!,
       review: w.review!,
-      client: w.project.client,
+      client: w.project.client!,
     }));
 
   const handleAddPortfolioProject = (newProject: PortfolioProject) => {

@@ -4,7 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { Project } from "@/types";
+import type { Project, Application } from "@/types";
+import { sharedRepository } from "@/lib/shared-repository";
 
 interface ApplyModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ interface ApplyModalProps {
 export function ApplyModal({ isOpen, onClose, project, onSuccess }: ApplyModalProps) {
   const [proposal, setProposal] = useState("");
   const [duration, setDuration] = useState("");
-  const [budget, setBudget] = useState(project.budgetValue.toString());
+  const [budget, setBudget] = useState((project.budgetValue ?? 0).toString());
   const [message, setMessage] = useState("");
 
   const [errors, setErrors] = useState<{ proposal?: string; duration?: string; budget?: string }>({});
@@ -37,11 +38,37 @@ export function ApplyModal({ isOpen, onClose, project, onSuccess }: ApplyModalPr
     if (!validate()) return;
 
     setIsSubmitting(true);
-    // Mock network delay
     setTimeout(() => {
       setIsSubmitting(false);
+
+      const existingApps = sharedRepository.getApplications();
+      const alreadyApplied = existingApps.some(a => a.projectId === project.id && a.studentId === "student-1");
+      if (alreadyApplied) {
+        alert("Already Applied");
+        return;
+      }
+      
+      const newApp: Application = {
+        id: `app-${Date.now()}`,
+        projectId: project.id,
+        studentId: "student-1",
+        status: "Pending",
+        proposal: proposal,
+        proposedBudget: `₹${budget}`,
+        estimatedCompletion: duration,
+        appliedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        name: "Alex Johnson",
+        avatarInitials: "AJ",
+        headline: "Frontend Developer",
+        college: "State University",
+        relevantSkills: project.skills,
+        portfolioSummary: "Great projects in React and Next.js",
+      };
+      
+      sharedRepository.saveApplication(newApp);
       onSuccess();
-    }, 1000);
+    }, 500);
   };
 
   return (

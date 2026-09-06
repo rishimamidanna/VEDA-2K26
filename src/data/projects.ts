@@ -3,6 +3,7 @@ import type { Project } from "@/types";
 export const allProjects: Project[] = [
   {
     id: "1",
+    clientId: "client-1",
     title: "React Analytics Dashboard",
     description: "Build a responsive analytics dashboard for a growing SaaS startup. Includes charts, KPI cards, and real-time data visualisation components.",
     fullDescription: "We're looking for a student developer to build a responsive analytics dashboard for a growing SaaS startup. The dashboard should allow users to monitor key business metrics, visualize trends, and interact with data in a clean and intuitive interface. You will be working directly with our design team to implement high-fidelity Figma mockups.",
@@ -35,6 +36,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "2",
+    clientId: "client-1",
     title: "E-commerce Landing Page",
     description: "Create a high-converting product landing page for a D2C skincare brand. Must include animations, product showcase, and a checkout CTA.",
     fullDescription: "We need a frontend developer to create a high-converting product landing page for a new D2C skincare brand. The page must be visually engaging, heavily optimized for mobile devices, and include smooth scrolling animations. You will work from a provided design system.",
@@ -66,6 +68,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "3",
+    clientId: "client-1",
     title: "Python Automation Tool",
     description: "Automate repetitive data-entry tasks using a Python script that integrates with Google Sheets and Notion via their APIs.",
     fullDescription: "Looking for a Python developer to automate our weekly reporting workflow. The script needs to pull data from multiple Google Sheets, aggregate the numbers, and automatically create structured pages in Notion using their API.",
@@ -98,6 +101,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "4",
+    clientId: "client-1",
     title: "Mobile App UI Redesign",
     description: "Redesign the user interface for a fintech mobile app targeting Gen Z users. Deliver high-fidelity Figma screens for iOS and Android.",
     fullDescription: "Our current app feels outdated. We are looking for a UI/UX designer to revamp the main screens (Home, Wallet, Profile, Transfer) with a modern, fresh look suitable for Gen Z users. We will provide wireframes and brand guidelines.",
@@ -129,6 +133,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "5",
+    clientId: "client-1",
     title: "AI Chatbot Integration",
     description: "Integrate an LLM-powered chatbot into an existing customer support portal using FastAPI and OpenAI API. Include conversation history and streaming responses.",
     category: "AI/ML",
@@ -146,6 +151,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "6",
+    clientId: "client-1",
     title: "Next.js Portfolio Website",
     description: "Design and develop a personal portfolio website for a product designer. Should include project showcases, an about section, and contact form.",
     category: "Web Development",
@@ -163,6 +169,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "7",
+    clientId: "client-1",
     title: "SQL Data Dashboard",
     description: "Build an internal data dashboard that connects to a PostgreSQL database and displays business metrics for the operations team.",
     category: "Data Science",
@@ -180,6 +187,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "8",
+    clientId: "client-1",
     title: "React Native Fitness App",
     description: "Build a cross-platform fitness tracking app with workout logging, progress charts, and push notifications using React Native and Expo.",
     category: "Mobile Development",
@@ -197,6 +205,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "9",
+    clientId: "client-1",
     title: "Blog Content Writing (Tech)",
     description: "Write 10 long-form technical blog posts (1500+ words each) on topics such as React performance, TypeScript best practices, and CSS architecture.",
     category: "Content",
@@ -214,6 +223,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "10",
+    clientId: "client-1",
     title: "Machine Learning Price Predictor",
     description: "Train a regression model to predict resale prices of used electronics. Provide a FastAPI endpoint and a simple frontend to submit items.",
     category: "AI/ML",
@@ -231,6 +241,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "11",
+    clientId: "client-1",
     title: "Figma Design System",
     description: "Create a scalable design system in Figma for a B2B SaaS product. Includes component library, typography, colours, and usage documentation.",
     category: "UI/UX Design",
@@ -248,6 +259,7 @@ export const allProjects: Project[] = [
   },
   {
     id: "12",
+    clientId: "client-1",
     title: "JavaScript Web Scraper",
     description: "Build a Node.js web scraper to collect product pricing data from competitor websites and store it in a structured JSON/CSV format.",
     category: "Automation",

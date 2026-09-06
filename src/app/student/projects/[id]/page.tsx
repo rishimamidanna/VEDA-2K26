@@ -17,7 +17,7 @@ import {
   ApplyModal,
   ApplicationSuccess,
 } from "@/components/student";
-import { allProjects } from "@/data/projects";
+import { useSharedProjects, sharedRepository } from "@/lib/shared-repository";
 
 interface ProjectDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -30,11 +30,17 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
   const { id } = use(params);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // Use a string comparison since params are strings and mock ids might be strings or numbers
+  // Load projects from shared repository (includes client-created projects)
+  const allProjects = useSharedProjects();
   const project = allProjects.find((p) => p.id === id);
+
+  // Pre-check if this student already applied — keeps Apply button disabled on reload
+  const existingApps = sharedRepository.getApplications();
+  const [hasApplied, setHasApplied] = useState(
+    existingApps.some(a => a.projectId === id && a.studentId === "student-1")
+  );
 
   if (!project) {
     return (
@@ -65,7 +71,6 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
     setIsModalOpen(false);
     setHasApplied(true);
     setShowSuccess(true);
-    // Scroll to top to see success state
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -104,7 +109,7 @@ export default function ProjectDetailsPage({ params }: ProjectDetailsPageProps) 
                 />
               </div>
 
-              {/* Mobile Apply Card (flows naturally at bottom or when sticky doesn't fit) */}
+              {/* Mobile Apply Card */}
               <div className="block lg:hidden w-full pb-12">
                 <ApplyCard 
                   project={project} 

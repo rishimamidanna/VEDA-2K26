@@ -1,15 +1,15 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Trash2, SearchX } from "lucide-react";
 import Link from "next/link";
 import { StudentLayout } from "@/components/student/StudentLayout";
 import { ApplicationProgress } from "@/components/student/applications";
-import { getApplicationWithProject } from "@/data/applications";
+import { sharedRepository } from "@/lib/shared-repository";
 import { cn } from "@/lib/utils";
-import type { Application } from "@/types";
+import type { Application, Project } from "@/types";
 
 interface ApplicationDetailsPageProps {
   params: Promise<{ id: string }>;
@@ -20,16 +20,43 @@ const statusStyles: Record<Application["status"], string> = {
   Shortlisted: "bg-blue-50 text-blue-700 border-blue-100",
   Pending: "bg-gray-100 text-gray-600 border-gray-200",
   Rejected: "bg-red-50 text-red-700 border-red-100",
+  "Under Review": "bg-purple-50 text-purple-700 border-purple-100",
+  Withdrawn: "bg-gray-200 text-gray-700 border-gray-300",
 };
+
+type AppWithProject = Application & { project: Project };
+
+function loadAppData(id: string): AppWithProject | null {
+  const apps = sharedRepository.getApplications();
+  const app = apps.find(a => a.id === id);
+  if (!app) return null;
+  const projects = sharedRepository.getProjects();
+  const project = projects.find(p => p.id === app.projectId);
+  if (!project) return null;
+  return { ...app, project };
+}
 
 export default function ApplicationDetailsPage({ params }: ApplicationDetailsPageProps) {
   const router = useRouter();
   const { id } = use(params);
 
-  // Use a local state for the application to handle frontend-only mock withdrawal
-  const [appData, setAppData] = useState(() => getApplicationWithProject(id));
+  const [appData, setAppData] = useState<AppWithProject | null>(() => loadAppData(id));
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [isWithdrawn, setIsWithdrawn] = useState(false);
+
+  // Live-sync: re-read from shared repo when status changes (e.g. Client shortlists/accepts in another tab)
+  useEffect(() => {
+    const refresh = () => {
+      const updated = loadAppData(id);
+      if (updated) setAppData(updated);
+    };
+    window.addEventListener("skillbridge_data_updated", refresh);
+    window.addEventListener("storage", refresh);
+    return () => {
+      window.removeEventListener("skillbridge_data_updated", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, [id]);
 
   if (!appData) {
     return (
@@ -57,6 +84,13 @@ export default function ApplicationDetailsPage({ params }: ApplicationDetailsPag
 
   const handleWithdraw = () => {
     setShowWithdrawModal(false);
+    // Guard: don't allow withdraw if already accepted
+    if (application.status === "Accepted") return;
+    sharedRepository.saveApplication({
+      ...application,
+      status: "Withdrawn",
+      updatedAt: new Date().toISOString(),
+    });
     setIsWithdrawn(true);
   };
 
@@ -88,6 +122,8 @@ export default function ApplicationDetailsPage({ params }: ApplicationDetailsPag
     );
   }
 
+  const canWithdraw = application.status !== "Accepted" && application.status !== "Withdrawn" && application.status !== "Rejected";
+
   return (
     <StudentLayout title="Application Details">
       <motion.div
@@ -112,97 +148,68 @@ export default function ApplicationDetailsPage({ params }: ApplicationDetailsPag
                 {project.title}
               </h1>
               <p className="text-sm text-[var(--color-text-secondary)]">
-                {project.client} • Applied {application.appliedAt}
+                {project.client || "Client"} • Applied {new Date(application.appliedAt).toLocaleDateString()}
               </p>
             </div>
             <span className={cn("inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold sm:self-center", statusStyles[application.status])}>
               {application.status}
             </span>
           </div>
-          
-          {application.status !== "Rejected" && (
-            <div className="bg-[var(--color-canvas-surface)] p-6">
-              <ApplicationProgress status={application.status} />
-            </div>
-          )}
+
+          {/* Progress Tracker */}
+          <div className="p-6">
+            <ApplicationProgress status={application.status} />
+          </div>
         </div>
 
-        {/* Application Details Content */}
-        <div className="mb-8 flex flex-col gap-8 rounded-2xl border border-[var(--color-border-subtle)] bg-white p-6 sm:p-8">
-          <div>
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-              Your Proposal
-            </h3>
-            <p className="text-sm leading-relaxed text-[var(--color-text-primary)] whitespace-pre-wrap">
-              {application.proposal}
-            </p>
-          </div>
+        {/* Application Details */}
+        <div className="mb-8 rounded-2xl border border-[var(--color-border-subtle)] bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-[var(--color-text-primary)]">Your Proposal</h2>
+          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-wrap">
+            {application.proposal}
+          </p>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--color-border-subtle)] pt-6">
             <div>
-              <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                Proposed Budget
-              </h3>
-              <p className="text-lg font-semibold text-[var(--color-text-primary)]">
-                {application.proposedBudget}
+              <p className="text-xs font-medium text-[var(--color-text-secondary)]">Proposed Budget</p>
+              <p className="mt-0.5 text-sm font-bold text-[var(--color-text-primary)]">
+                {application.proposedBudget || project.budget}
               </p>
             </div>
             <div>
-              <h3 className="mb-1.5 text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                Estimated Completion
-              </h3>
-              <p className="text-lg font-semibold text-[var(--color-text-primary)]">
-                {application.estimatedCompletion}
+              <p className="text-xs font-medium text-[var(--color-text-secondary)]">Estimated Completion</p>
+              <p className="mt-0.5 text-sm font-bold text-[var(--color-text-primary)]">
+                {application.estimatedCompletion || project.duration}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Actions based on status */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            {application.status === "Accepted" ? (
-              <Link
-                href="/student/work"
-                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
-              >
-                View in My Work
-                <ArrowRight size={16} />
-              </Link>
-            ) : application.status === "Rejected" ? (
-              <Link
-                href="/student/projects"
-                className="flex items-center justify-center gap-2 rounded-xl bg-[var(--color-text-primary)] px-6 py-3 text-sm font-semibold text-white hover:bg-[var(--color-text-secondary)] transition-colors"
-              >
-                Find More Projects
-                <ArrowRight size={16} />
-              </Link>
-            ) : null}
-
-            <Link
-              href={`/student/projects/${project.id}`}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold transition-colors",
-                application.status === "Accepted" || application.status === "Rejected"
-                  ? "border border-[var(--color-border-subtle)] bg-white text-[var(--color-text-primary)] hover:bg-[var(--color-canvas-surface)]"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              )}
-            >
-              View Project Details
-              <ArrowRight size={16} />
-            </Link>
+        {/* Project Summary */}
+        <div className="mb-8 rounded-2xl border border-[var(--color-border-subtle)] bg-white p-6 shadow-sm">
+          <h2 className="mb-3 text-lg font-bold text-[var(--color-text-primary)]">Project Summary</h2>
+          <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{project.description}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {project.skills.map(skill => (
+              <span key={skill} className="rounded-lg bg-[var(--color-canvas-surface)] px-3 py-1 text-xs font-medium text-[var(--color-text-primary)] border border-[var(--color-border-subtle)]">
+                {skill}
+              </span>
+            ))}
           </div>
+        </div>
 
-          {application.status === "Pending" && (
+        {/* Actions */}
+        {canWithdraw && (
+          <div className="flex justify-end">
             <button
               onClick={() => setShowWithdrawModal(true)}
-              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-6 py-3 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors sm:w-auto"
+              className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors"
             >
-              <Trash2 size={16} />
+              <Trash2 size={15} />
               Withdraw Application
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </motion.div>
 
       {/* Withdraw Confirmation Modal */}
@@ -213,36 +220,31 @@ export default function ApplicationDetailsPage({ params }: ApplicationDetailsPag
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50"
               onClick={() => setShowWithdrawModal(false)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative z-10 w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl p-6 text-center"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
             >
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 text-red-600">
-                <Trash2 size={24} />
-              </div>
-              <h2 className="mb-2 text-lg font-bold text-[var(--color-text-primary)]">
-                Withdraw application?
-              </h2>
-              <p className="mb-8 text-sm text-[var(--color-text-secondary)]">
-                Are you sure you want to withdraw your application for <strong>{project.title}</strong>? This action cannot be undone.
+              <h3 className="mb-2 text-lg font-bold text-[var(--color-text-primary)]">Withdraw Application?</h3>
+              <p className="mb-6 text-sm text-[var(--color-text-secondary)]">
+                This will permanently withdraw your application for <strong>{project.title}</strong>. This action cannot be undone.
               </p>
-              <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+              <div className="flex gap-3">
                 <button
                   onClick={() => setShowWithdrawModal(false)}
-                  className="rounded-xl px-5 py-2.5 text-sm font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-canvas-surface)] transition-colors"
+                  className="flex-1 rounded-xl border border-[var(--color-border-subtle)] px-4 py-2.5 text-sm font-semibold text-[var(--color-text-primary)] hover:bg-[var(--color-canvas-surface)] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleWithdraw}
-                  className="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
+                  className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 transition-colors"
                 >
-                  Withdraw Application
+                  Yes, Withdraw
                 </button>
               </div>
             </motion.div>

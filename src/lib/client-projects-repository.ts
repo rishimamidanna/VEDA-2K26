@@ -1,8 +1,5 @@
-import {
-  ClientProjectDetail,
-  ProjectStatus,
-  SEEDED_PROJECT_DETAILS,
-} from "@/data/client-projects";
+import { Project, ProjectStatus } from "@/types";
+import { sharedRepository } from "./shared-repository";
 
 export interface CreateProjectInput {
   clientId: string;
@@ -17,129 +14,57 @@ export interface CreateProjectInput {
   deadline?: string;
 }
 
-export interface ClientProjectItem extends ClientProjectDetail {
-  isUserCreated?: boolean;
-}
+export type ClientProjectItem = Project;
 
-const STORAGE_KEY = "skillbridge_client_created_projects";
-
-/**
- * Clean repository service for prototype client projects.
- * Keeps storage logic isolated from UI components so a real backend / database
- * can replace this service without rewriting UI logic.
- */
 export const clientProjectsRepository = {
-  /**
-   * Returns all user-created projects stored in localStorage.
-   */
   getUserProjects(): ClientProjectItem[] {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
-        return parsed;
-      }
-      return [];
-    } catch {
-      return [];
-    }
+    return sharedRepository.getProjects().filter(p => p.isUserCreated);
   },
 
-  /**
-   * Returns all projects for a specific client (or all if no clientId provided),
-   * combining user-created projects with seeded demo projects.
-   * User-created projects appear at the top.
-   */
   getAllProjects(clientId?: string): ClientProjectItem[] {
-    const userProjects = this.getUserProjects();
-    const seededList: ClientProjectItem[] = Object.values(SEEDED_PROJECT_DETAILS).map(
-      (proj) => ({
-        ...proj,
-        isUserCreated: false,
-      })
-    );
-
-    // If clientId is provided, filter user projects by that clientId.
-    const filteredUserProjects = clientId
-      ? userProjects.filter((p) => p.clientId === clientId)
-      : userProjects;
-
-    return [...filteredUserProjects, ...seededList];
-  },
-
-  /**
-   * Look up a project by its unique ID (checks user projects first, then seeded projects).
-   */
-  getProjectById(id: string): ClientProjectItem | null {
-    const userProjects = this.getUserProjects();
-    const match = userProjects.find((p) => p.id === id);
-    if (match) return match;
-
-    const seeded = SEEDED_PROJECT_DETAILS[id];
-    if (seeded) {
-      return {
-        ...seeded,
-        isUserCreated: false,
-      };
+    const all = sharedRepository.getProjects();
+    if (clientId) {
+      return all.filter(p => p.clientId === clientId || !p.isUserCreated);
     }
-
-    return null;
+    return all;
   },
 
-  /**
-   * Create and persist a new project for the client.
-   * Sets default status to "Open", initial applicantsCount to 0,
-   * generates safe unique id, and timestamps creation.
-   */
-  createProject(input: CreateProjectInput): ClientProjectItem {
-    const uniqueId = `proj-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-    
-    // Format postedDate nicely e.g. "Sep 6, 2026"
-    const now = new Date();
-    const postedDate = now.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+  getProjectById(id: string): ClientProjectItem | null {
+    return sharedRepository.getProjects().find(p => p.id === id) || null;
+  },
 
-    const formattedBudget = input.budget.startsWith("₹")
-      ? input.budget
-      : `₹${Number(input.budget).toLocaleString("en-IN")}`;
-
-    const newProject: ClientProjectItem = {
-      id: uniqueId,
-      clientId: input.clientId,
-      title: input.title.trim(),
-      description: input.description.trim(),
+  createProject(input: CreateProjectInput, userId: string = "client_123"): ClientProjectItem {
+    const newProject: Project = {
+      id: `proj-${Date.now()}`,
+      clientId: userId,
+      title: input.title,
+      description: input.description,
       category: input.category,
       skills: input.skills,
-      budget: formattedBudget,
+      budget: input.budget,
       duration: input.duration,
       experienceLevel: input.experienceLevel,
       deliverables: input.deliverables,
-      deadline: input.deadline ? input.deadline : undefined,
-      status: "Open" as ProjectStatus,
-      postedDate,
-      createdAt: now.toISOString(),
+      deadline: input.deadline,
+      status: "Open",
+      postedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
       applicantsCount: 0,
       isUserCreated: true,
-      timelineNote: "Project published and actively open for student proposals.",
     };
-
-    if (typeof window !== "undefined") {
-      try {
-        const existing = this.getUserProjects();
-        const updated = [newProject, ...existing];
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        // Dispatch custom event so listeners on the same tab can update reactively
-        window.dispatchEvent(new Event("skillbridge_projects_updated"));
-      } catch (err) {
-        console.error("Failed to save project to localStorage:", err);
-      }
-    }
-
+    sharedRepository.saveProject(newProject);
     return newProject;
   },
+
+  updateProjectStatus(projectId: string, status: ProjectStatus): ClientProjectItem | null {
+    const all = sharedRepository.getProjects();
+    const proj = all.find(p => p.id === projectId);
+    if (proj) {
+      proj.status = status as any;
+      sharedRepository.saveProject(proj);
+      return proj;
+    }
+    return null;
+  }
 };
+

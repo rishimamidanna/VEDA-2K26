@@ -16,8 +16,9 @@ import {
   WorkProjectProgress,
 } from "@/components/student/work";
 import { getWorkProject } from "@/data/work";
+import { sharedRepository } from "@/lib/shared-repository";
 import { cn } from "@/lib/utils";
-import type { WorkStatus } from "@/types";
+import type { WorkStatus, WorkProject } from "@/types";
 
 interface WorkspacePageProps {
   params: Promise<{ id: string }>;
@@ -34,7 +35,32 @@ export default function WorkspacePage({ params }: WorkspacePageProps) {
   const { id } = use(params);
 
   // Local state to simulate workflow
-  const [workData] = useState(() => getWorkProject(id));
+  const [workData] = useState(() => {
+    let w = getWorkProject(id);
+    if (!w && id.startsWith("work-derived-")) {
+      const appId = id.replace("work-derived-", "");
+      const app = sharedRepository.getApplications().find(a => a.id === appId);
+      if (app) {
+        const project = sharedRepository.getProjects().find(p => p.id === app.projectId);
+        if (project) {
+          w = {
+            id,
+            projectId: app.projectId,
+            studentId: app.studentId,
+            clientId: project.clientId,
+            status: "In Progress",
+            progress: 0,
+            lastActivity: "Project started",
+            milestones: [],
+            deliverables: [],
+            recentActivity: [],
+            project
+          };
+        }
+      }
+    }
+    return w as WorkProject & { project: any };
+  });
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -96,7 +122,7 @@ export default function WorkspacePage({ params }: WorkspacePageProps) {
           <div className="mt-8 mb-8">
             <SubmissionSuccess 
               onBack={() => router.push("/student/work")} 
-              clientName={project.client} 
+              clientName={project.client || "Client"} 
             />
           </div>
         ) : (

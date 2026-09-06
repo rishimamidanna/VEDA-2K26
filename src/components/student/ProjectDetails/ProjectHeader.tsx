@@ -20,7 +20,7 @@ export function ProjectHeader({ project }: { project: Project }) {
         <span className="inline-block rounded-md bg-[var(--color-canvas-surface)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text-secondary)]">
           {project.category}
         </span>
-        <ProjectMatchBadge percentage={project.matchPercentage} />
+        <ProjectMatchBadge percentage={project.matchPercentage || 0} />
       </div>
 
       <h1 className="mb-4 text-3xl font-bold tracking-tight text-[var(--color-text-primary)] md:text-4xl">

@@ -50,7 +50,7 @@ export function FullProjectCard({ project, index = 0 }: FullProjectCardProps) {
             {project.title}
           </h3>
         </div>
-        <ProjectMatchBadge percentage={project.matchPercentage} className="flex-shrink-0 mt-0.5" />
+        <ProjectMatchBadge percentage={project.matchPercentage || 0} className="flex-shrink-0 mt-0.5" />
       </div>
 
       {/* Description */}

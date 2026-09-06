@@ -19,6 +19,8 @@ const statusStyles: Record<Application["status"], string> = {
   Shortlisted: "bg-blue-50 text-blue-700 border-blue-100",
   Pending: "bg-gray-100 text-gray-600 border-gray-200",
   Rejected: "bg-red-50 text-red-700 border-red-100",
+  "Under Review": "bg-purple-50 text-purple-700 border-purple-100",
+  Withdrawn: "bg-gray-200 text-gray-700 border-gray-300",
 };
 
 export function ApplicationCard({ application, project, index = 0 }: ApplicationCardProps) {
@@ -35,7 +37,7 @@ export function ApplicationCard({ application, project, index = 0 }: Application
             <span className="inline-block rounded-md bg-[var(--color-canvas-surface)] px-2 py-0.5 text-[11px] font-semibold text-[var(--color-text-secondary)]">
               {project.category}
             </span>
-            <ProjectMatchBadge percentage={project.matchPercentage} />
+            <ProjectMatchBadge percentage={project.matchPercentage || 0} />
           </div>
           
           <h3 className="mb-1.5 text-lg font-semibold text-[var(--color-text-primary)] leading-snug">

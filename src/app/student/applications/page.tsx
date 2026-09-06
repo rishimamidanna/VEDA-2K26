@@ -11,7 +11,7 @@ import {
   ApplicationCard,
   ApplicationEmptyState,
 } from "@/components/student/applications";
-import { getAllApplicationsWithProjects } from "@/data/applications";
+import { useSharedApplications, useSharedProjects } from "@/lib/shared-repository";
 import type { ApplicationTab } from "@/components/student/applications";
 import type { SortOption } from "@/types";
 
@@ -20,7 +20,18 @@ export default function ApplicationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<SortOption>("Newest"); // We'll just use the same SortOption type but default to Newest
 
-  const allApps = useMemo(() => getAllApplicationsWithProjects(), []);
+  const sharedApps = useSharedApplications();
+  const sharedProjects = useSharedProjects();
+  
+  const allApps = useMemo(() => {
+    return sharedApps
+      .filter(a => a.studentId === "student-1")
+      .map(app => ({
+        ...app,
+        project: sharedProjects.find(p => p.id === app.projectId)!
+      }))
+      .filter(a => a.project !== undefined);
+  }, [sharedApps, sharedProjects]);
 
   // Compute counts for summary and tabs
   const counts = useMemo(() => {
@@ -48,7 +59,7 @@ export default function ApplicationsPage() {
       result = result.filter(
         (a) =>
           a.project.title.toLowerCase().includes(q) ||
-          a.project.client.toLowerCase().includes(q) ||
+          a.project.client!.toLowerCase().includes(q) ||
           a.project.skills.some((s) => s.toLowerCase().includes(q))
       );
     }
@@ -57,11 +68,11 @@ export default function ApplicationsPage() {
     result.sort((a, b) => {
       switch (sortOption) {
         case "Recommended": // repurpose as Highest Match
-          return b.project.matchPercentage - a.project.matchPercentage;
+          return b.project.matchPercentage! - a.project.matchPercentage!;
         case "Budget: High to Low":
-          return b.project.budgetValue - a.project.budgetValue;
+          return b.project.budgetValue! - a.project.budgetValue!;
         case "Budget: Low to High":
-          return a.project.budgetValue - b.project.budgetValue;
+          return a.project.budgetValue! - b.project.budgetValue!;
         case "Newest":
         default:
           // Mock sort: just string compare appliedAt for now or reverse id

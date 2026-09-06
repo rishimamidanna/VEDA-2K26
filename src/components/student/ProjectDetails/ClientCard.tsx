@@ -27,10 +27,10 @@ export function ClientCard({ project }: { project: Project }) {
               {details.type} • {details.location}
             </p>
           </div>
-          {details.rating > 0 && (
+          {details.rating! > 0 && (
             <div className="flex flex-col items-end">
               <span className="flex items-center gap-1 text-sm font-bold text-[var(--color-text-primary)]">
-                {details.rating} <Star size={14} className="fill-current text-yellow-400" />
+                {details.rating!} <Star size={14} className="fill-current text-yellow-400" />
               </span>
               <span className="text-xs text-[var(--color-text-secondary)]">Client Rating</span>
             </div>
