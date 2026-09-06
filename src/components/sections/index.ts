@@ -1,2 +1,3 @@
-// Modular section components will be exported from here.
 export * from "./hero";
+export * from "./hero-visual";
+export * from "./how-it-works";
