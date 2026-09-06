@@ -15,3 +15,4 @@ export * from "./client-login-form";
 export * from "./client-signup-form";
 export * from "./client-project-detail-client";
 export * from "./client-project-applicants-client";
+export * from "./hired-students-list";

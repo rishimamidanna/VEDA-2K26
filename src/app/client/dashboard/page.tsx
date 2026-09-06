@@ -134,7 +134,7 @@ export default function ClientDashboardPage() {
           </div>
 
           <Link
-            href="/client/dashboard#post-project"
+            href="/client/projects/new"
             className="text-[13px] font-medium text-[#0071e3] hover:underline focus-visible:outline-hidden"
           >
             Create project &rarr;
@@ -145,7 +145,7 @@ export default function ClientDashboardPage() {
           title="No active projects"
           description="You haven't posted any projects yet. Create your first project posting to start receiving proposals from qualified students."
           actionText="Post Your First Project"
-          actionHref="/client/dashboard#post-project"
+          actionHref="/client/projects/new"
           icon={
             <svg
               className="h-6 w-6"

@@ -153,4 +153,28 @@ export const clientApplicationsRepository = {
 
     return newApp;
   },
+
+  /**
+   * Retrieves all accepted applicants across all projects (both user-created and seeded).
+   * Only returns applications with status === "Accepted".
+   */
+  getAcceptedApplications(): Array<ProjectApplication & { projectTitle?: string; projectStatus?: string }> {
+    const storedMap = this.getStoredApplications();
+    const allProjectIds = new Set<string>([
+      ...Object.keys(SEEDED_PROJECT_APPLICANTS),
+      ...Object.keys(storedMap),
+    ]);
+
+    const accepted: Array<ProjectApplication & { projectTitle?: string; projectStatus?: string }> = [];
+
+    allProjectIds.forEach((pId) => {
+      const apps = this.getApplicationsByProjectId(pId);
+      const acceptedInProject = apps.filter((a) => a.status === "Accepted");
+      acceptedInProject.forEach((item) => {
+        accepted.push(item);
+      });
+    });
+
+    return accepted;
+  },
 };

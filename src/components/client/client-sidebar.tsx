@@ -116,7 +116,7 @@ export const CLIENT_SIDEBAR_ITEMS: NavItemConfig[] = [
   },
   {
     label: "Hired Students",
-    href: "/client/dashboard#hired",
+    href: "/client/hired-students",
     icon: ({ className, "aria-hidden": ariaHidden }) => (
       <svg
         className={className}
