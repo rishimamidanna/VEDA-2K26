@@ -15,3 +15,13 @@ export * from "./FullProjectCard";
 export * from "./ProjectSearch";
 export * from "./ProjectSort";
 export * from "./ProjectFilters";
+
+// Project Details components
+export * from "./ProjectDetails/ProjectHeader";
+export * from "./ProjectDetails/ProjectMeta";
+export * from "./ProjectDetails/SkillMatch";
+export * from "./ProjectDetails/ProjectDescription";
+export * from "./ProjectDetails/ClientCard";
+export * from "./ProjectDetails/ApplyCard";
+export * from "./ProjectDetails/ApplyModal";
+

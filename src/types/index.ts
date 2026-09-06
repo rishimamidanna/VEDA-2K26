@@ -41,6 +41,8 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  fullDescription?: string;
+  deliverables?: string[];
   category: ProjectCategory;
   budgetValue: number; // raw number for sorting/filtering
   budget: string;       // formatted display string e.g. "₹9,000"
@@ -49,9 +51,17 @@ export interface Project {
   skills: string[];
   matchPercentage: number;
   client: string;
+  clientDetails?: {
+    type: string;
+    location: string;
+    projectsPosted: number;
+    studentsHired: number;
+    rating: number;
+  };
   postedAt: string;
   experienceLevel: ExperienceLevel;
   deadline?: string;
+  status?: "Open" | "In Progress" | "Completed" | "Closed";
 }
 
 export interface ProjectFilters {
