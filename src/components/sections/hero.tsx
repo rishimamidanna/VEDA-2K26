@@ -69,7 +69,7 @@ export function Hero() {
               </MotionLink>
 
               <MotionLink
-                href="#hire"
+                href="/client/login"
                 whileHover={reduced ? undefined : { y: -1 }}
                 whileTap={reduced ? undefined : { scale: 0.985 }}
                 className="inline-flex h-12 items-center justify-center rounded-full border border-[#e5e5ea] bg-white px-7 text-[15px] font-medium text-[var(--color-text-primary)] shadow-xs transition-all duration-200 ease-out hover:border-[#c7c7cc] hover:bg-[#f5f5f7] hover:shadow-[0_2px_8px_rgba(0,0,0,0.04)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 motion-safe:active:scale-[0.985]"

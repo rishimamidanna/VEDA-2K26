@@ -8,7 +8,7 @@ import { useClientAuth } from "@/components/client/client-auth-context";
 function LoginFormInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useClientAuth();
+  const { user, login } = useClientAuth();
 
   const from = searchParams.get("from") || "/client/dashboard";
 
@@ -90,6 +90,23 @@ function LoginFormInner() {
 
       {/* Main Login Form Card */}
       <div className="rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-canvas-bg)] p-6 sm:p-8 shadow-2xs space-y-5">
+        {user && user.role === "client" && (
+          <div className="rounded-xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-3.5 flex items-center justify-between gap-3 text-[13px]">
+            <div className="flex items-center gap-2 truncate">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-[var(--color-text-secondary)] truncate">
+                Signed in as <strong className="font-semibold text-[var(--color-text-primary)]">{user.name || user.email}</strong>
+              </span>
+            </div>
+            <Link
+              href="/client/dashboard"
+              className="inline-flex h-8 items-center justify-center rounded-full bg-[var(--color-text-primary)] px-3.5 text-[12px] font-semibold text-white shadow-2xs hover:bg-black shrink-0 transition-all"
+            >
+              Continue to Dashboard &rarr;
+            </Link>
+          </div>
+        )}
+
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-3.5 text-[13px] text-red-700 font-medium flex items-center justify-between">
             <span>{error}</span>
