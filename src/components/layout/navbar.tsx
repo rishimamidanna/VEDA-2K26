@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Container } from "./container";
 import { cn } from "@/lib/utils";
@@ -24,11 +25,16 @@ export interface NavbarProps {
 }
 
 export function Navbar({ className }: NavbarProps) {
+  const pathname = usePathname();
   const reduced = useReducedMotion();
   const phase = useIntroPhase();
   const isRevealed = phase !== "playing";
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
 
   // Monitor scroll state for enhanced elevation on scroll
   useEffect(() => {
@@ -64,9 +70,10 @@ export function Navbar({ className }: NavbarProps) {
     };
   }, [isMobileMenuOpen]);
 
-  const closeMobileMenu = useCallback(() => {
-    setIsMobileMenuOpen(false);
-  }, []);
+  // Return null if on client dashboard routes so it uses its own dedicated shell
+  if (pathname?.startsWith("/client")) {
+    return null;
+  }
 
   return (
     <motion.header
