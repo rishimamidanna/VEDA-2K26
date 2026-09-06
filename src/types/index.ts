@@ -85,3 +85,44 @@ export interface Application {
   proposedBudget: string;
   estimatedCompletion: string;
 }
+
+// ─── Work Types ──────────────────────────────────────────────────────────────
+
+export type WorkStatus = "In Progress" | "Awaiting Review" | "Completed";
+
+export interface Milestone {
+  id: string;
+  title: string;
+  status: "Not Started" | "In Progress" | "Completed";
+}
+
+export interface Deliverable {
+  id: string;
+  title: string;
+  status: "Pending" | "Completed";
+}
+
+export interface Activity {
+  id: string;
+  type: "upload" | "note" | "milestone";
+  content: string;
+  timestamp: string;
+}
+
+export interface WorkProject {
+  id: string;
+  projectId: string; // Links to Project.id
+  status: WorkStatus;
+  progress: number;
+  lastActivity: string;
+  milestones: Milestone[];
+  deliverables: Deliverable[];
+  clientNotes?: string;
+  recentActivity: Activity[];
+  
+  // Completed project fields
+  completedAt?: string;
+  rating?: number;
+  review?: string;
+  earnings?: string;
+}

@@ -28,3 +28,6 @@ export * from "./ProjectDetails/ApplyModal";
 // Applications components
 export * from "./applications";
 
+// Work components
+export * from "./work";
+
