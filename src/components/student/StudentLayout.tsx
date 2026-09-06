@@ -7,9 +7,11 @@ import { StudentHeader } from "@/components/student";
 interface StudentLayoutProps {
   children: React.ReactNode;
   title?: string;
+  fullWidth?: boolean;
+  noPadding?: boolean;
 }
 
-export function StudentLayout({ children, title = "Dashboard" }: StudentLayoutProps) {
+export function StudentLayout({ children, title = "Dashboard", fullWidth = false, noPadding = false }: StudentLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -21,8 +23,12 @@ export function StudentLayout({ children, title = "Dashboard" }: StudentLayoutPr
         <StudentHeader title={title} onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          {children}
+        <main className={noPadding ? "flex flex-1 overflow-hidden" : `flex-1 overflow-y-auto p-4 md:p-6 lg:p-8`}>
+          {fullWidth ? children : (
+            <div className="mx-auto w-full">
+              {children}
+            </div>
+          )}
         </main>
       </div>
     </div>

@@ -184,3 +184,38 @@ export interface StudentProfile {
   education: Education[];
   portfolio: PortfolioProject[];
 }
+
+// ─── Messaging Types ──────────────────────────────────────────────────────────
+
+export type MessageSender = "student" | "client";
+export type MessageStatus = "sending" | "sent" | "read";
+export type ConversationStatus = "online" | "offline" | "away";
+
+export interface MessageAttachment {
+  id: string;
+  name: string;
+  size?: string;
+}
+
+export interface Message {
+  id: string;
+  conversationId: string;
+  sender: MessageSender;
+  content: string;
+  timestamp: string;
+  status: MessageStatus;
+  attachment?: MessageAttachment;
+}
+
+export interface Conversation {
+  id: string;
+  client: string;
+  clientInitial: string;
+  projectId: string;
+  projectTitle: string;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+  clientStatus: ConversationStatus;
+  clientStatusText?: string;
+}

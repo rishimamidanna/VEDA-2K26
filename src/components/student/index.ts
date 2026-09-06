@@ -34,3 +34,6 @@ export * from "./work";
 // Profile components
 export * from "./profile";
 
+// Messages components
+export * from "./messages";
+
