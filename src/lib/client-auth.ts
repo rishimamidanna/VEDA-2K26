@@ -36,6 +36,7 @@ export function saveClientSession(user: ClientUser) {
     document.cookie = `${CLIENT_AUTH_COOKIE_NAME}=${encodeURIComponent(
       JSON.stringify({ id: user.id, role: user.role, email: user.email })
     )}; path=/; max-age=604800; SameSite=Lax`;
+    window.dispatchEvent(new Event("skillbridge_client_auth_updated"));
   } catch {
     // Ignore write issues in private mode
   }
@@ -47,6 +48,7 @@ export function clearClientSession() {
   try {
     localStorage.removeItem(CLIENT_AUTH_STORAGE_KEY);
     document.cookie = `${CLIENT_AUTH_COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+    window.dispatchEvent(new Event("skillbridge_client_auth_updated"));
   } catch {
     // Ignore clear issues
   }

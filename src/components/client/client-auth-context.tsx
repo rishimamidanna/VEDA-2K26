@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useCallback, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import {
   ClientUser,
@@ -19,12 +19,47 @@ interface ClientAuthContextType {
 
 const ClientAuthContext = createContext<ClientAuthContextType | undefined>(undefined);
 
+function subscribeAuth(callback: () => void) {
+  window.addEventListener("skillbridge_client_auth_updated", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("skillbridge_client_auth_updated", callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+let cachedSessionRaw: string | null = null;
+let cachedSessionUser: ClientUser | null = null;
+
+function getAuthSnapshot(): ClientUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("skillbridge_client_auth_session");
+    if (raw !== cachedSessionRaw) {
+      cachedSessionRaw = raw;
+      cachedSessionUser = getStoredClientSession();
+    }
+    return cachedSessionUser;
+  } catch {
+    return null;
+  }
+}
+
+function getServerAuthSnapshot(): ClientUser | null {
+  return null;
+}
+
 export function ClientAuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<ClientUser | null>(() => {
-    return getStoredClientSession();
-  });
-  const isLoading = false;
   const router = useRouter();
+
+  // Safely subscribe to client session with useSyncExternalStore
+  const user = useSyncExternalStore(subscribeAuth, getAuthSnapshot, getServerAuthSnapshot);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isLoading = !mounted;
 
   const login = useCallback(async (email: string, name?: string, company?: string): Promise<boolean> => {
     const cleanEmail = email.trim().toLowerCase();
@@ -47,7 +82,6 @@ export function ClientAuthProvider({ children }: { children: React.ReactNode }) 
     };
 
     saveClientSession(clientUser);
-    setUser(clientUser);
     return true;
   }, []);
 
@@ -57,7 +91,6 @@ export function ClientAuthProvider({ children }: { children: React.ReactNode }) 
 
   const logout = useCallback(() => {
     clearClientSession();
-    setUser(null);
     router.push("/client/login");
   }, [router]);
 
