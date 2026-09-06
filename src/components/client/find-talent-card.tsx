@@ -44,7 +44,7 @@ export function FindTalentCard({ className }: FindTalentCardProps) {
 
         <div className="shrink-0">
           <Link
-            href="/client/dashboard#find-talent"
+            href="/client/talent"
             className="inline-flex h-10 w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[var(--color-text-primary)] px-5 text-[13px] sm:text-[14px] font-medium text-white shadow-xs transition-all hover:bg-black hover:shadow-sm active:scale-[0.98] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
           >
             <span>Browse Talent</span>

@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useClientAuth } from "./client-auth-context";
 
 export interface NavItemConfig {
   label: string;
@@ -36,7 +37,7 @@ export const CLIENT_SIDEBAR_ITEMS: NavItemConfig[] = [
   },
   {
     label: "Post a Project",
-    href: "/client/dashboard#post-project",
+    href: "/client/projects/new",
     icon: ({ className, "aria-hidden": ariaHidden }) => (
       <svg
         className={className}
@@ -56,7 +57,7 @@ export const CLIENT_SIDEBAR_ITEMS: NavItemConfig[] = [
   },
   {
     label: "My Projects",
-    href: "/client/dashboard#projects",
+    href: "/client/projects",
     icon: ({ className, "aria-hidden": ariaHidden }) => (
       <svg
         className={className}
@@ -96,7 +97,7 @@ export const CLIENT_SIDEBAR_ITEMS: NavItemConfig[] = [
   },
   {
     label: "Find Talent",
-    href: "/client/dashboard#find-talent",
+    href: "/client/talent",
     icon: ({ className, "aria-hidden": ariaHidden }) => (
       <svg
         className={className}
@@ -198,6 +199,7 @@ export interface ClientSidebarProps {
 
 export function ClientSidebar({ isOpen, onClose, className }: ClientSidebarProps) {
   const pathname = usePathname();
+  const { user, logout } = useClientAuth();
 
   // Handle ESC key to close mobile drawer
   useEffect(() => {
@@ -269,7 +271,11 @@ export function ClientSidebar({ isOpen, onClose, className }: ClientSidebarProps
         {/* Navigation Section */}
         <nav aria-label="Client Navigation" className="flex flex-col space-y-1">
           {CLIENT_SIDEBAR_ITEMS.map((item) => {
-            const isActive = item.label === "Dashboard" && pathname === "/client/dashboard";
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/client/dashboard" &&
+                !item.href.includes("#") &&
+                pathname?.startsWith(item.href));
             const Icon = item.icon;
 
             return (
@@ -315,21 +321,42 @@ export function ClientSidebar({ isOpen, onClose, className }: ClientSidebarProps
         </nav>
       </div>
 
-      {/* User / Workspace Footer Card */}
-      <div className="pt-4 border-t border-[var(--color-border-subtle)]">
+      {/* User / Workspace Footer Card & Logout */}
+      <div className="pt-4 border-t border-[var(--color-border-subtle)] space-y-2">
         <div className="flex items-center gap-3 rounded-xl p-2.5 transition-colors hover:bg-[var(--color-canvas-surface)]">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0071e3]/15 to-[#5a6ef5]/25 text-[#0071e3] font-semibold text-[13px]">
-            CP
+            {user ? user.initials : "CP"}
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <span className="text-[13px] font-medium text-[var(--color-text-primary)] truncate">
-              Client Partner
+              {user ? user.name : "Client Partner"}
             </span>
             <span className="text-[11px] text-[var(--color-text-tertiary)] truncate">
-              client@skillbridge.co
+              {user ? user.email : "client@skillbridge.co"}
             </span>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={logout}
+          className="w-full flex items-center justify-center gap-2 rounded-xl border border-[var(--color-border-subtle)] bg-white py-2 text-[12px] font-medium text-[var(--color-text-secondary)] hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-red-500"
+        >
+          <svg
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" x2="9" y1="12" y2="12" />
+          </svg>
+          <span>Sign Out</span>
+        </button>
       </div>
     </div>
   );

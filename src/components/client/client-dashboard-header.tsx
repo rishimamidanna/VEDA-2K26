@@ -65,7 +65,7 @@ export function ClientDashboardHeader({
 
           {/* Post a Project Primary CTA Button */}
           <Link
-            href="/client/dashboard#post-project"
+            href="/client/projects/new"
             className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-[var(--color-text-primary)] px-4 sm:px-5 text-[13px] sm:text-[14px] font-medium text-white shadow-xs transition-all duration-200 hover:bg-black hover:shadow-sm active:scale-[0.98] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
           >
             <span className="text-[16px] leading-none font-light">+</span>

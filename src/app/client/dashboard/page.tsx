@@ -6,6 +6,7 @@ import {
   RecentApplicants,
   FindTalentCard,
   ApplicantPreviewItem,
+  ClientWelcomeGreeting,
 } from "@/components/client";
 
 export const metadata: Metadata = {
@@ -38,17 +39,7 @@ export default function ClientDashboardPage() {
   return (
     <div className="space-y-8 sm:space-y-10">
       {/* Header Section */}
-      <section aria-labelledby="dashboard-heading" className="space-y-1">
-        <h1
-          id="dashboard-heading"
-          className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--color-text-primary)]"
-        >
-          Welcome back
-        </h1>
-        <p className="text-[14px] sm:text-[15px] text-[var(--color-text-secondary)]">
-          Manage your projects and connect with talented students.
-        </p>
-      </section>
+      <ClientWelcomeGreeting />
 
       {/* 1. Overview Section */}
       <section aria-labelledby="overview-heading" className="space-y-4">
