@@ -25,3 +25,6 @@ export * from "./ProjectDetails/ClientCard";
 export * from "./ProjectDetails/ApplyCard";
 export * from "./ProjectDetails/ApplyModal";
 
+// Applications components
+export * from "./applications";
+

@@ -71,3 +71,17 @@ export interface ProjectFilters {
   duration: DurationRange | null;
   experienceLevel: ExperienceLevel | null;
 }
+
+// ─── Application Types ────────────────────────────────────────────────────────
+
+export type ApplicationStatus = "Pending" | "Shortlisted" | "Accepted" | "Rejected";
+
+export interface Application {
+  id: string;
+  projectId: string; // Links to Project.id
+  status: ApplicationStatus;
+  appliedAt: string;
+  proposal: string;
+  proposedBudget: string;
+  estimatedCompletion: string;
+}
