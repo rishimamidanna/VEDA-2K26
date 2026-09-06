@@ -68,9 +68,15 @@ export function ClientProjectsList() {
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--color-text-primary)]">
               My Projects
             </h1>
-            <span className="inline-flex items-center rounded-full bg-[#0071e3]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#0071e3]">
-              Demo data
-            </span>
+            {projects.some((p) => p.isUserCreated) ? (
+              <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200/60 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                Live &bull; {projects.filter((p) => p.isUserCreated).length} custom
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-[#0071e3]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#0071e3]">
+                Demo data
+              </span>
+            )}
           </div>
           <p className="mt-1 text-[14px] sm:text-[15px] text-[var(--color-text-secondary)]">
             Manage your posted projects, track candidate applications, and monitor progress.
