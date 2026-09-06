@@ -4,3 +4,60 @@ export type SiteConfig = {
   description: string;
   url?: string;
 };
+
+// ─── Project Types ────────────────────────────────────────────────────────────
+
+export type ProjectCategory =
+  | "Web Development"
+  | "Mobile Development"
+  | "UI/UX Design"
+  | "Data Science"
+  | "AI/ML"
+  | "Content"
+  | "Automation";
+
+export type ExperienceLevel = "Beginner" | "Intermediate" | "Advanced";
+
+export type BudgetRange =
+  | "Under ₹5,000"
+  | "₹5,000–₹10,000"
+  | "₹10,000–₹25,000"
+  | "₹25,000+";
+
+export type DurationRange =
+  | "Less than 1 week"
+  | "1–2 weeks"
+  | "2–4 weeks"
+  | "1+ month";
+
+export type SortOption =
+  | "Recommended"
+  | "Newest"
+  | "Budget: High to Low"
+  | "Budget: Low to High"
+  | "Deadline";
+
+export interface Project {
+  id: string;
+  title: string;
+  description: string;
+  category: ProjectCategory;
+  budgetValue: number; // raw number for sorting/filtering
+  budget: string;       // formatted display string e.g. "₹9,000"
+  duration: string;
+  durationWeeks: number; // for filtering
+  skills: string[];
+  matchPercentage: number;
+  client: string;
+  postedAt: string;
+  experienceLevel: ExperienceLevel;
+  deadline?: string;
+}
+
+export interface ProjectFilters {
+  category: ProjectCategory | null;
+  skills: string[];
+  budgetRange: BudgetRange | null;
+  duration: DurationRange | null;
+  experienceLevel: ExperienceLevel | null;
+}
