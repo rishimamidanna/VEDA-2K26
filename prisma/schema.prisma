@@ -1,0 +1,462 @@
+// Prisma schema for SkillBridge
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  STUDENT
+  CLIENT
+}
+
+enum ProjectStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum WorkStatus {
+  IN_PROGRESS
+  AWAITING_REVIEW
+  COMPLETED
+}
+
+enum SkillProficiency {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  CANCELLED
+}
+
+enum TransactionType {
+  PAYMENT
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  REFUND
+  PLATFORM_FEE
+  EARNING
+}
+
+// ─── User & Profiles ───────────────────────────────────────────────────────────
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  name          String
+  passwordHash  String?
+  avatar        String?
+  role          UserRole        @default(STUDENT)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  studentProfile StudentProfile?
+  clientProfile  ClientProfile?
+  messages       Message[]
+  storedFiles    StoredFile[]
+  paymentTransactions PaymentTransaction[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model StudentProfile {
+  id                String             @id @default(cuid())
+  userId            String             @unique
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  headline          String?
+  about             String?
+  college           String?
+  location          String?
+  expertise         String?            // Web Development, UI/UX & Design, etc.
+  experienceLevel   String?            // Beginner, Intermediate, Advanced
+  availability      String?            // Available Now, 10-20 hrs/week, etc.
+  hourlyRate        String?            // e.g. ₹500/hr
+  profileStrength   Int?               @default(80)
+  isPublic          Boolean            @default(true)
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  skills            StudentSkill[]
+  portfolio         PortfolioProject[]
+  applications      Application[]
+  workContracts     WorkContract[]
+  conversations     Conversation[]
+  payments          Payment[]
+  wallet            StudentWallet?
+
+  @@index([userId])
+}
+
+model ClientProfile {
+  id                  String         @id @default(cuid())
+  userId              String         @unique
+  user                User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyName         String
+  industry            String?
+  description         String?
+  location            String?
+  rating              Float?         @default(5.0)
+  projectsPostedCount Int            @default(0)
+  studentsHiredCount  Int            @default(0)
+
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  projects            Project[]
+  workContracts       WorkContract[]
+  conversations       Conversation[]
+  payments            Payment[]
+
+  @@index([userId])
+}
+
+// ─── Skills ────────────────────────────────────────────────────────────────────
+
+model Skill {
+  id             String         @id @default(cuid())
+  name           String         @unique
+  createdAt      DateTime       @default(now())
+
+  studentSkills  StudentSkill[]
+  projectSkills  ProjectSkill[]
+
+  @@index([name])
+}
+
+model StudentSkill {
+  id               String            @id @default(cuid())
+  studentId        String
+  student          StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skillId          String
+  skill            Skill             @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  proficiency      SkillProficiency? @default(INTERMEDIATE)
+
+  @@unique([studentId, skillId])
+  @@index([studentId])
+  @@index([skillId])
+}
+
+model ProjectSkill {
+  id          String         @id @default(cuid())
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skillId     String
+  skill       Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, skillId])
+  @@index([projectId])
+  @@index([skillId])
+}
+
+// ─── Portfolio ─────────────────────────────────────────────────────────────────
+
+model PortfolioProject {
+  id          String         @id @default(cuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  title       String
+  description String
+  tags        String[]       // PostgreSQL native string array
+  projectUrl  String?
+  imageUrl    String?
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([studentId])
+}
+
+// ─── Project ───────────────────────────────────────────────────────────────────
+
+model Project {
+  id               String         @id @default(cuid())
+  clientId         String
+  client           ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  
+  title            String
+  description      String
+  fullDescription  String?
+  category         String         // Web Development, UI/UX Design, etc.
+  budget           String         // Display string: e.g. "₹9,000"
+  budgetValue      Int?           // Numeric representation for sorting/filtering: e.g. 9000
+  duration         String         // Display string: e.g. "2 weeks"
+  durationWeeks    Int?           // Numeric weeks for filtering: e.g. 2
+  experienceLevel  String         // Beginner, Intermediate, Advanced
+  deliverables     String[]       // Key milestones/deliverables list
+  deadline         String?        // Deadline display/date
+  status           ProjectStatus  @default(OPEN)
+  timelineNote     String?
+
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  skills           ProjectSkill[]
+  applications     Application[]
+  workContracts    WorkContract[]
+  conversations    Conversation[]
+  payments         Payment[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([category])
+}
+
+// ─── Application ───────────────────────────────────────────────────────────────
+
+model Application {
+  id                  String             @id @default(cuid())
+  projectId           String
+  project             Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  studentId           String
+  student             StudentProfile     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  status              ApplicationStatus  @default(PENDING)
+  proposal            String
+  proposedBudget      String?
+  estimatedCompletion String?
+
+  appliedAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  workContract        WorkContract?
+
+  // Database-level uniqueness: A student can apply to a given project only ONCE
+  @@unique([projectId, studentId])
+  @@index([projectId])
+  @@index([studentId])
+  @@index([status])
+}
+
+// ─── Work / Contract ───────────────────────────────────────────────────────────
+
+model WorkContract {
+  id            String          @id @default(cuid())
+  applicationId String          @unique
+  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  
+  projectId     String
+  project       Project         @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  studentId     String
+  student       StudentProfile  @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  clientId      String
+  client        ClientProfile   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  
+  status        WorkStatus      @default(IN_PROGRESS)
+  progress      Int             @default(0)
+  lastActivity  String?
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  payments      Payment[]
+  escrow        Escrow?
+
+  @@index([projectId])
+  @@index([studentId])
+  @@index([clientId])
+  @@index([status])
+}
+
+// ─── Messaging ─────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id          String         @id @default(cuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  clientId    String
+  client      ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectId   String
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  messages    Message[]
+
+  @@unique([studentId, clientId, projectId])
+  @@index([studentId])
+  @@index([clientId])
+  @@index([projectId])
+  @@index([updatedAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  content        String
+  readAt         DateTime?
+  attachmentUrl  String?
+  attachmentName String?
+  attachmentSize String?
+
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+  @@index([conversationId, createdAt])
+  @@index([conversationId, readAt])
+}
+
+// ─── File Storage (Supabase Storage Metadata) ──────────────────────────────────
+
+model StoredFile {
+  id             String       @id @default(cuid())
+  bucket         String       @default("skillbridge-files")
+  path           String       @unique
+  originalName   String
+  mimeType       String
+  size           Int
+  category       String       // "PROFILE_AVATAR" | "PORTFOLIO_IMAGE" | "PROJECT_FILE" | "WORK_DELIVERABLE" | "MESSAGE_ATTACHMENT"
+  
+  ownerId        String
+  owner          User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  // Contextual associations for fine-grained authorization
+  studentId      String?
+  clientId       String?
+  projectId      String?
+  workContractId String?
+  conversationId String?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([ownerId])
+  @@index([category])
+  @@index([conversationId])
+  @@index([projectId])
+  @@index([workContractId])
+  @@index([studentId])
+}
+
+// ─── Payments & Escrow ─────────────────────────────────────────────────────────
+
+model Payment {
+  id                String          @id @default(cuid())
+  clientId          String
+  client            ClientProfile   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  studentId         String
+  student           StudentProfile  @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  projectId         String
+  project           Project         @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  workContractId    String
+  workContract      WorkContract    @relation(fields: [workContractId], references: [id], onDelete: Restrict)
+  
+  amount            Decimal         @db.Decimal(12, 2)
+  currency          String          @default("USD")
+  status            PaymentStatus   @default(PENDING)
+  provider          String          @default("MOCK")
+  providerPaymentId String?
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  escrow            Escrow?
+  transactions      PaymentTransaction[]
+
+  @@index([clientId])
+  @@index([studentId])
+  @@index([projectId])
+  @@index([workContractId])
+  @@index([status])
+}
+
+model Escrow {
+  id             String        @id @default(cuid())
+  paymentId      String        @unique
+  payment        Payment       @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  workContractId String        @unique
+  workContract   WorkContract  @relation(fields: [workContractId], references: [id], onDelete: Restrict)
+  
+  amount         Decimal       @db.Decimal(12, 2)
+  currency       String        @default("USD")
+  status         EscrowStatus  @default(HELD)
+  
+  heldAt         DateTime      @default(now())
+  releasedAt     DateTime?
+  refundedAt     DateTime?
+  
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model StudentWallet {
+  id               String         @id @default(cuid())
+  studentId        String         @unique
+  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  availableBalance Decimal        @default(0.00) @db.Decimal(12, 2)
+  pendingBalance   Decimal        @default(0.00) @db.Decimal(12, 2)
+  totalEarned      Decimal        @default(0.00) @db.Decimal(12, 2)
+  currency         String         @default("USD")
+  
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([studentId])
+}
+
+model PaymentTransaction {
+  id          String          @id @default(cuid())
+  paymentId   String?
+  payment     Payment?        @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Restrict)
+  
+  type        TransactionType
+  amount      Decimal         @db.Decimal(12, 2)
+  currency    String          @default("USD")
+  description String
+  
+  createdAt   DateTime        @default(now())
+
+  @@index([userId])
+  @@index([paymentId])
+  @@index([type])
+  @@index([createdAt])
+}
+
